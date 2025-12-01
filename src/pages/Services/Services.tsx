@@ -51,7 +51,7 @@ const Services: React.FC = () => {
       desc:
         'Safe and reliable transport for non-critical patients requiring mobility support, scheduled visits, and hospital appointments.',
       iconBg: 'bg-amber-100',
-      href: '/clinics-locations',
+      href: '/nemt',
       decor: 'from-amber-200',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>

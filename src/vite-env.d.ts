@@ -25,3 +25,9 @@ declare module '*.gif' {
   const src: string;
   export default src;
 }
+
+// Allow importing Markdown files as raw strings via Vite '?raw' modifier.
+declare module '*.md?raw' {
+  const src: string;
+  export default src;
+}
