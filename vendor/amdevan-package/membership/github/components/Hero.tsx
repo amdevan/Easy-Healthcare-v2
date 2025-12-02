@@ -80,10 +80,12 @@ const Hero: React.FC = () => {
             </div>
           </div>
 
-           <img
+          <img
             className="absolute inset-0 w-full h-full object-cover lg:rounded-bl-[4rem] animate-float"
-            src="https://images.unsplash.com/photo-1581579438747-1dc8d17bbce4?q=80&w=1000&auto=format&fit=crop"
+            src="https://plus.unsplash.com/premium_photo-1664475558991-b873931dfc74?q=80&w=2672&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt="Nepali elderly couple smiling"
+            referrerPolicy="no-referrer"
+            onError={(e) => { e.currentTarget.src = 'https://picsum.photos/seed/membership/1600/900'; }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent lg:rounded-bl-[4rem] pointer-events-none"></div>
         </div>

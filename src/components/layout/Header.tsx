@@ -31,12 +31,12 @@ const Header: React.FC = () => {
 
   // Services dropdown items (map to existing routes where sensible)
   const servicesMenu = [
-    { label: 'Primary Health Care', href: '#' },
-    { label: 'Digital Health & Telemedicine', href: '/video-consult' },
+    { label: 'Primary Health Care', href: '/primary-health' },
+    { label: 'Digital Health & Telemedicine', href: '/telemedicine' },
     { label: 'Diagnostics & Laboratory', href: '/lab-tests' },
-    { label: 'Pharmacy Services', href: '/pharmacy' },
+    { label: 'Products', href: '/products' },
     { label: 'Non-Emergency Medical Transport (NEMT)', href: '/nemt' },
-    { label: 'Community Health Programs', href: '#' },
+    { label: 'Community Health Programs', href: '/community-health' },
   ];
 
   // About dropdown items with icons and short descriptions
@@ -87,10 +87,7 @@ const Header: React.FC = () => {
     return l === 'find doctors' ? 'Find Doctors & Clinics' : (label ?? '');
   };
   const links = linksSource.map(l => ({ ...l, label: normalizeLabel(l.label) }));
-  const hasPharmacyLink = links.some(
-    (l) => l.href === '/pharmacy' || (l.label && l.label.toLowerCase().includes('pharmacy'))
-  );
-  const linksAugmented = hasPharmacyLink ? links : [...links, { label: 'Easy Pharmacy', href: '/pharmacy' }];
+  const linksAugmented = links;
 
   // Insert "Products" link immediately to the right of "Easy Pharmacy"
   const hasProductsLink = linksAugmented.some(
@@ -132,13 +129,97 @@ const Header: React.FC = () => {
     }
   }
 
-  const aboutIndex = linksWithMembership.findIndex(
+  const hasVideoConsultLink = linksWithMembership.some(
+    (l) => l.href === '/video-consult' || (l.label && l.label.toLowerCase().includes('video consult'))
+  );
+  let linksAdjusted = linksWithMembership.filter(
+    (l) => !(l.href === '/video-consult' || (l.label && l.label.toLowerCase().includes('video consult')))
+  );
+  const labIndex = linksAdjusted.findIndex(
+    (l) => l.href === '/lab-tests' || (l.label && l.label.toLowerCase().includes('lab tests'))
+  );
+  const videoConsultItem = { label: 'Video Consult', href: '/telemedicine' };
+  if (labIndex >= 0) {
+    linksAdjusted = [
+      ...linksAdjusted.slice(0, labIndex + 1),
+      videoConsultItem,
+      ...linksAdjusted.slice(labIndex + 1),
+    ];
+  } else if (!hasVideoConsultLink) {
+    linksAdjusted = [...linksAdjusted, videoConsultItem];
+  }
+
+  // Insert "Easy Pharmacy" right after "Video Consult" and avoid duplicate Products
+  const productsIndex = linksAdjusted.findIndex(
+    (l) => l.href === '/products' || (l.label && l.label.toLowerCase().includes('products'))
+  );
+  if (productsIndex >= 0) {
+    linksAdjusted = [
+      ...linksAdjusted.slice(0, productsIndex),
+      ...linksAdjusted.slice(productsIndex + 1),
+    ];
+  }
+  const videoIndex = linksAdjusted.findIndex(
+    (l) => l.href === '/telemedicine' || (l.label && l.label.toLowerCase().includes('video consult'))
+  );
+  const easyPharmacyItem = { label: 'Easy Pharmacy', href: '/pharmacy' };
+  if (videoIndex >= 0) {
+    linksAdjusted = [
+      ...linksAdjusted.slice(0, videoIndex + 1),
+      easyPharmacyItem,
+      ...linksAdjusted.slice(videoIndex + 1),
+    ];
+  } else {
+    linksAdjusted = [...linksAdjusted, easyPharmacyItem];
+  }
+
+  // Add "Products" immediately after "Easy Pharmacy"
+  const hasProductsLink2 = linksAdjusted.some(
+    (l) => l.href === '/products' || (l.label && l.label.toLowerCase().includes('products'))
+  );
+  if (!hasProductsLink2) {
+    const easyIndex = linksAdjusted.findIndex(
+      (l) => (l.label && l.label.toLowerCase().includes('easy pharmacy')) || l.href === '/pharmacy'
+    );
+    const productsItem = { label: 'Products', href: '/products' };
+    if (easyIndex >= 0) {
+      linksAdjusted = [
+        ...linksAdjusted.slice(0, easyIndex + 1),
+        productsItem,
+        ...linksAdjusted.slice(easyIndex + 1),
+      ];
+    } else {
+      linksAdjusted = [...linksAdjusted, productsItem];
+    }
+  }
+
+  // Insert "Clinics & Locations" right after "Membership"
+  const hasClinicsLink = linksAdjusted.some(
+    (l) => l.href === '/clinics-locations' || (l.label && l.label.toLowerCase().includes('clinics'))
+  );
+  if (!hasClinicsLink) {
+    const membershipIndex = linksAdjusted.findIndex(
+      (l) => l.href === '/membership' || (l.label && l.label.toLowerCase().includes('membership'))
+    );
+    const clinicsItem = { label: 'Clinics & Locations', href: '/clinics-locations' };
+    if (membershipIndex >= 0) {
+      linksAdjusted = [
+        ...linksAdjusted.slice(0, membershipIndex + 1),
+        clinicsItem,
+        ...linksAdjusted.slice(membershipIndex + 1),
+      ];
+    } else {
+      linksAdjusted = [...linksAdjusted, clinicsItem];
+    }
+  }
+
+  const aboutIndex = linksAdjusted.findIndex(
     (l) => l.label?.toLowerCase() === 'about' || l.href === '/about'
   );
-  const aboutLink = aboutIndex >= 0 ? linksWithMembership[aboutIndex] : null;
+  const aboutLink = aboutIndex >= 0 ? linksAdjusted[aboutIndex] : null;
   const leftLinks = aboutIndex >= 0
-    ? [...linksWithMembership.slice(0, aboutIndex), ...linksWithMembership.slice(aboutIndex + 1)]
-    : linksWithMembership;
+    ? [...linksAdjusted.slice(0, aboutIndex), ...linksAdjusted.slice(aboutIndex + 1)]
+    : linksAdjusted;
 
   useEffect(() => {
     let mounted = true;
@@ -260,10 +341,31 @@ const Header: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-gray-200/70">
+      <div className="bg-blue-50 border-b border-blue-100">
+        <div className="container mx-auto px-4 py-2 flex items-center justify-between text-xs sm:text-sm">
+          <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-2 text-brand-blue">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-6-4.5-6-9a6 6 0 1112 0c0 4.5-6 9-6 9z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><circle cx="12" cy="12" r="2" stroke="currentColor" strokeWidth="2"/></svg>
+              <span>Address: Kathmandu, Nepal</span>
+            </div>
+            <a href="tel:+97714510101" className="inline-flex items-center gap-2 text-brand-blue font-semibold">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 16.92v2a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012 4.18 2 2 0 014 2h2a2 2 0 012 1.72c.12.89.37 1.76.73 2.58a2 2 0 01-.45 2.11L7 9a16 16 0 006 6l.59-.59a2 2 0 012.11-.45c.82.36 1.69.61 2.58.73A2 2 0 0122 16.92z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <span>Emergency: +977 1-4510101</span>
+            </a>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button to="/find-doctors" size="sm" variant="primary">Book Appointment</Button>
+            <Link to="/auth/login" className="inline-flex items-center gap-2 text-brand-blue font-semibold">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 21v-2a4 4 0 00-3-3.87M4 21v-2a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <span>Patient Login</span>
+            </Link>
+          </div>
+        </div>
+      </div>
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <div className="flex items-center space-x-8">
           <Logo />
-          <nav className="hidden lg:flex items-center space-x-6">
+          <nav className="hidden lg:flex items-center space-x-3">
             {leftLinks.map(({ label, href }) => {
               const isInternal = href?.startsWith('/');
               if (isInternal) {
@@ -271,14 +373,14 @@ const Header: React.FC = () => {
                   <Link
                     key={`${label}-${href}`}
                     to={href}
-                    className={`px-2 py-2 rounded-md transition-colors duration-200 ${isActive(href) ? 'text-brand-blue font-semibold bg-blue-50' : 'text-brand-gray-700 hover:text-brand-blue hover:bg-gray-50'}`}
+                    className={`px-2 py-2 rounded-md text-base transition-colors duration-200 ${isActive(href) ? 'text-brand-blue font-semibold bg-blue-50' : 'text-brand-gray-700 hover:text-brand-blue hover:bg-gray-50'}`}
                   >
                     {label}
                   </Link>
                 );
               }
               return (
-                <a key={`${label}-${href}`} href={href} className="px-2 py-2 rounded-md text-brand-gray-700 hover:text-brand-blue hover:bg-gray-50 transition-colors duration-200">{label}</a>
+                <a key={`${label}-${href}`} href={href} className="px-2 py-2 rounded-md text-base text-brand-gray-700 hover:text-brand-blue hover:bg-gray-50 transition-colors duration-200">{label}</a>
               );
             })}
             {/* Our Services dropdown (desktop, accessible) */}
@@ -291,7 +393,7 @@ const Header: React.FC = () => {
                   if (e.key === 'Enter' || e.key === ' ') setServicesOpen((v) => !v);
                   if (e.key === 'Escape') setServicesOpen(false);
                 }}
-                className={`flex items-center gap-1 px-2 py-2 rounded-md transition-colors duration-200 ${servicesOpen ? 'text-brand-blue bg-blue-50' : 'text-brand-gray-700 hover:text-brand-blue hover:bg-gray-50'}`}
+                className={`flex items-center gap-1 px-2 py-2 rounded-md text-base transition-colors duration-200 ${servicesOpen ? 'text-brand-blue bg-blue-50' : 'text-brand-gray-700 hover:text-brand-blue hover:bg-gray-50'}`}
               >
                 Our Services
                 <svg className={`w-4 h-4 transition-transform ${servicesOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -333,11 +435,7 @@ const Header: React.FC = () => {
               </div>
               )}
             </div>
-          </nav>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="hidden md:flex items-center space-x-2">
-            {/* About dropdown (desktop, accessible) */}
+            {/* About dropdown (moved next to Our Services) */}
             <div className="relative" onMouseLeave={() => setAboutOpen(false)}>
               <button
                 aria-haspopup="true"
@@ -348,7 +446,7 @@ const Header: React.FC = () => {
                   if (e.key === 'Enter' || e.key === ' ') setAboutOpen((v) => !v);
                   if (e.key === 'Escape') setAboutOpen(false);
                 }}
-                className={`flex items-center gap-1 px-4 py-2 text-sm font-semibold rounded-md transition-colors ${aboutOpen ? 'text-brand-blue bg-blue-50' : 'text-brand-gray-700 hover:bg-gray-100'}`}
+                className={`flex items-center gap-1 px-2 py-2 text-base font-semibold rounded-md transition-colors ${aboutOpen ? 'text-brand-blue bg-blue-50' : 'text-brand-gray-700 hover:bg-gray-100'}`}
               >
                 About
                 <svg className={`w-4 h-4 transition-transform ${aboutOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -426,10 +524,15 @@ const Header: React.FC = () => {
             </div>
             <Link
               to="/contact"
-              className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors ${isActive('/contact') ? 'text-brand-blue bg-blue-50' : 'text-brand-gray-700 hover:bg-gray-100'}`}
+              className={`px-2 py-2 rounded-md text-base font-semibold transition-colors ${isActive('/contact') ? 'text-brand-blue bg-blue-50' : 'text-brand-gray-700 hover:text-brand-blue hover:bg-gray-100'}`}
             >
               Contact
             </Link>
+          </nav>
+        </div>
+        <div className="flex items-center space-x-2">
+          <div className="hidden md:flex items-center space-x-2">
+            
           </div>
           <button
             type="button"
@@ -442,16 +545,7 @@ const Header: React.FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          {headerSetting?.cta?.href ? (
-            <Button to={headerSetting.cta.href || '/auth/login'} size="md" variant="primary">
-              {headerSetting.cta.label || 'Login / Signup'}
-            </Button>
-          ) : (
-            <Button to="/auth/login" size="md" variant="primary">Login / Signup</Button>
-          )}
-          <Button to="/auth/login" size="md" variant="primary">
-            Patient Login
-          </Button>
+          {/* CTA moved to top header: Book Appointment */}
         </div>
       </div>
           {mobileOpen && (
@@ -461,7 +555,7 @@ const Header: React.FC = () => {
               {/* Dropdown panel */}
               <div className="lg:hidden absolute left-0 right-0 top-full bg-white border-b shadow-sm z-50">
                 <nav className="px-4 py-3 space-y-1">
-                  {linksWithMembership.map(({ label, href }) => {
+                  {linksAdjusted.map(({ label, href }) => {
                     const isInternal = href?.startsWith('/');
                     if (isInternal) {
                       return (

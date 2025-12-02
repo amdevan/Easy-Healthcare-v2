@@ -1,4 +1,4 @@
-import React, { use State } from 'react';
+import React, { useState } from 'react';
 import { HEALTH_PACKAGES, ADDITIONAL_SERVICES } from './constants';
 import { HealthPackage } from './types';
 import Hero from './components/Hero';

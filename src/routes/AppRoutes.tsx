@@ -5,7 +5,6 @@ import Contact from '@/pages/Contact/Contact';
 import FindDoctors from '@/pages/FindDoctors/FindDoctors';
 import VideoConsult from '@/pages/VideoConsult/VideoConsult';
 import LabTests from '@/pages/LabTests/LabTests';
-import Pharmacy from '@/pages/Pharmacy/Pharmacy';
 import Services from '@/pages/Services/Services';
 import NEMT from '@/pages/NEMT/NEMT';
 import ClinicsLocations from '@/pages/ClinicsLocations/ClinicsLocations';
@@ -14,9 +13,13 @@ import Register from '@/pages/Auth/Register';
 import Dashboard from '@/pages/Dashboard/Dashboard';
 import Products from '@/pages/Products/Products';
 import Membership from '@/pages/Membership/Membership';
+import Telemedicine from '@/pages/Telemedicine/Telemedicine';
+import Pharmacy from '@/pages/Pharmacy/Pharmacy';
 import AboutPage from '@/views/pages/AboutPage';
 import AboutBoard from '@/views/pages/AboutBoard';
 import ManagementTeam from '@/views/pages/ManagementTeam';
+import PrimaryHealth from '@/pages/PrimaryHealth/PrimaryHealth';
+import CommunityHealth from '@/pages/CommunityHealth/CommunityHealth';
 import { AuthProvider } from '@/context/AuthContext';
 import { AdminProvider } from '@/context/AdminContext';
 import ProtectedRoute from '@/routes/ProtectedRoute';
@@ -34,11 +37,14 @@ const AppRoutes: React.FC = () => {
           <Route path="/find-doctors" element={<FindDoctors />} />
           <Route path="/video-consult" element={<VideoConsult />} />
           <Route path="/lab-tests" element={<LabTests />} />
-          <Route path="/pharmacy" element={<Pharmacy />} />
           <Route path="/services" element={<Services />} />
+          <Route path="/primary-health" element={<PrimaryHealth />} />
+          <Route path="/community-health" element={<CommunityHealth />} />
           <Route path="/nemt" element={<NEMT />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/pharmacy" element={<Pharmacy />} />
           <Route path="/membership" element={<Membership />} />
+          <Route path="/telemedicine" element={<Telemedicine />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/about/board-of-director" element={<AboutBoard />} />
           <Route path="/about/management-team" element={<ManagementTeam />} />
