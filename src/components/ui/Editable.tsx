@@ -61,6 +61,9 @@ const Editable: React.FC<EditableProps> = ({ tag: Tag, id, children, className }
     onBlur: isAdminMode ? handleBlur : undefined,
     contentEditable: isAdminMode,
     suppressContentEditableWarning: true,
+    style: isAdminMode
+      ? { outline: '2px dashed #0ea5e9', outlineOffset: '4px', cursor: 'text' }
+      : undefined,
   };
 
   if (initialized && savedContent) {

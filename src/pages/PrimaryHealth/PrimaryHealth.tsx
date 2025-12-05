@@ -179,7 +179,7 @@ const AppointmentForm: React.FC = () => {
             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 space-y-4">
               <div className="flex items-start gap-4"><div className="bg-teal-50 p-3 rounded-lg text-teal-600"><Clock size={24} /></div><div><h4 className="font-bold text-slate-900">Clinic Hours</h4><p className="text-sm text-slate-500 mt-1">Mon - Fri: 8:00 AM - 8:00 PM</p><p className="text-sm text-slate-500">Sat: 9:00 AM - 5:00 PM</p><p className="text-sm text-slate-500">Sun: Closed</p></div></div>
               <div className="w-full h-px bg-slate-100 my-4"></div>
-              <div className="flex items-start gap-4"><div className="bg-teal-50 p-3 rounded-lg text-teal-600"><Phone size={24} /></div><div><h4 className="font-bold text-slate-900">Emergency Contact</h4><p className="text-sm text-slate-500 mt-1">For life-threatening emergencies, please call local emergency services.</p><p className="text-sm text-slate-500 mt-1">Clinic Line: (555) 019-2834</p></div></div>
+              <div className="flex items-start gap-4"><div className="bg-teal-50 p-3 rounded-lg text-teal-600"><Phone size={24} /></div><div><h4 className="font-bold text-slate-900">Support Contact</h4><p className="text-sm text-slate-500 mt-1">For life-threatening emergencies, please call local emergency services.</p><p className="text-sm text-slate-500 mt-1">Clinic Line: (555) 019-2834</p></div></div>
             </div>
           </div>
           <div className="lg:w-7/12">

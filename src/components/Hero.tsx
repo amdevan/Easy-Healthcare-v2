@@ -68,9 +68,9 @@ const Hero: React.FC = () => {
         <div className="hidden lg:block">
           <Slider
             slides={[
-              { src: 'https://picsum.photos/id/26/800/520', alt: 'Essentials neatly arranged' },
-              { src: 'https://picsum.photos/id/32/800/520', alt: 'Medical tools and accessories' },
-              { src: 'https://picsum.photos/id/1041/800/520', alt: 'Work desk with accessories' },
+              { src: 'https://images.unsplash.com/photo-1758691463384-771db2f192b3?q=80&w=3432&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', alt: 'Health care' },
+              { src: 'https://plus.unsplash.com/premium_photo-1663013549676-1eba5ea1d16e?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDV8fGhlYWx0aCUyMGNhcmV8ZW58MHx8MHx8fDA%3D', alt: 'Medical tools and accessories' },
+              { src: 'https://images.unsplash.com/photo-1758691462321-9b6c98c40f7e?q=80&w=3432&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', alt: 'Work desk with accessories' },
             ]}
             autoPlay
             intervalMs={4500}

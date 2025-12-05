@@ -32,12 +32,12 @@ const Services: React.FC = () => {
       ),
     },
     {
-      id: 'pharmacy-services',
-      title: 'Products',
+      id: 'health-package',
+      title: 'Health Package',
       desc:
-        'Licensed in-house and online pharmacy providing authentic medicines, online ordering, home delivery, and prescription management.',
+        'Curated health packages for preventive, family, and chronic-care needs with transparent inclusions and pricing.',
       iconBg: 'bg-rose-100',
-      href: '/products',
+      href: '/health-package',
       decor: 'from-rose-200',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>

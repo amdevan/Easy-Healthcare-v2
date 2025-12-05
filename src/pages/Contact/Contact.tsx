@@ -91,7 +91,7 @@ const Contact: React.FC = () => {
                     <Phone className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-brand-gray-900">Emergency & Support</p>
+                    <p className="text-sm font-semibold text-brand-gray-900">Support</p>
                     <a href="tel:+97714510101" className="mt-1 block text-brand-blue">+977 1-4510101</a>
                   </div>
                 </div>
@@ -133,9 +133,10 @@ const Contact: React.FC = () => {
                 <iframe
                   title="Easy Healthcare Location"
                   aria-label="Map showing Easy Healthcare location in Kathmandu"
-                  className="w-full h-48"
+                  className="w-full h-72 md:h-80 lg:h-96"
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.087931694395!2d85.3239606!3d27.7122984!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb19a8b6b1c2a9%3A0x3b2b4c8a2b1b!2sKathmandu!5e0!3m2!1sen!2snp!4v1700000000000"
                   loading="lazy"
+                  allowFullScreen
                   referrerPolicy="no-referrer-when-downgrade"
                 />
               </div>

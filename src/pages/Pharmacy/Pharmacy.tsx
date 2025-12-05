@@ -8,6 +8,9 @@ const PrescriptionUpload: React.FC = () => {
   const [preview, setPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [step, setStep] = useState<'SELECT' | 'DETAILS'>('SELECT');
+  const [details, setDetails] = useState({ name: '', phone: '', address: '', email: '' });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -15,11 +18,33 @@ const PrescriptionUpload: React.FC = () => {
       setFile(selectedFile);
       setPreview(URL.createObjectURL(selectedFile));
       setUploadStatus('idle');
+      setStep('SELECT');
+      setErrors({});
     }
+  };
+
+  const handleNext = () => {
+    if (!file) return;
+    setStep('DETAILS');
+  };
+
+  const validateDetails = () => {
+    const newErrors: Record<string, string> = {};
+    if (!details.name.trim()) newErrors.name = 'Name is required';
+    if (!details.phone.trim()) newErrors.phone = 'Phone number is required';
+    else if (!/^\+?\d{7,15}$/.test(details.phone.trim())) newErrors.phone = 'Enter a valid phone number';
+    if (!details.address.trim()) newErrors.address = 'Address is required';
+    // Email is optional; validate only if provided
+    if (details.email.trim() && !/^\S+@\S+\.\S+$/.test(details.email.trim())) newErrors.email = 'Enter a valid email';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleUpload = () => {
     if (!file) return;
+    if (step !== 'DETAILS') return;
+    if (!validateDetails()) return;
+
     setIsUploading(true);
     setTimeout(() => {
       setIsUploading(false);
@@ -28,6 +53,9 @@ const PrescriptionUpload: React.FC = () => {
         setFile(null);
         setPreview(null);
         setUploadStatus('idle');
+        setStep('SELECT');
+        setDetails({ name: '', phone: '', address: '', email: '' });
+        setErrors({});
       }, 3000);
     }, 2000);
   };
@@ -55,6 +83,9 @@ const PrescriptionUpload: React.FC = () => {
                   setFile(null);
                   setPreview(null);
                   setUploadStatus('idle');
+                  setStep('SELECT');
+                  setDetails({ name: '', phone: '', address: '', email: '' });
+                  setErrors({});
                 }}
                 className="absolute top-2 right-2 bg-white/80 px-2 py-1 rounded-md text-red-600 hover:text-red-700"
               >
@@ -80,22 +111,90 @@ const PrescriptionUpload: React.FC = () => {
           )}
         </div>
 
+        {step === 'DETAILS' && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700">Full Name</label>
+                <input
+                  type="text"
+                  value={details.name}
+                  onChange={(e) => setDetails({ ...details, name: e.target.value })}
+                  className={`mt-1 w-full rounded-md border ${errors.name ? 'border-red-300' : 'border-slate-300'} p-2 focus:outline-none focus:ring-2 focus:ring-brand-blue`}
+                  placeholder="Enter your name"
+                />
+                {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700">Phone Number</label>
+                <input
+                  type="tel"
+                  value={details.phone}
+                  onChange={(e) => setDetails({ ...details, phone: e.target.value })}
+                  className={`mt-1 w-full rounded-md border ${errors.phone ? 'border-red-300' : 'border-slate-300'} p-2 focus:outline-none focus:ring-2 focus:ring-brand-blue`}
+                  placeholder="e.g. +9779812345678"
+                />
+                {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Address</label>
+              <input
+                type="text"
+                value={details.address}
+                onChange={(e) => setDetails({ ...details, address: e.target.value })}
+                className={`mt-1 w-full rounded-md border ${errors.address ? 'border-red-300' : 'border-slate-300'} p-2 focus:outline-none focus:ring-2 focus:ring-brand-blue`}
+                placeholder="Street, City, District"
+              />
+              {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Email (optional)</label>
+              <input
+                type="email"
+                value={details.email}
+                onChange={(e) => setDetails({ ...details, email: e.target.value })}
+                className={`mt-1 w-full rounded-md border ${errors.email ? 'border-red-300' : 'border-slate-300'} p-2 focus:outline-none focus:ring-2 focus:ring-brand-blue`}
+                placeholder="you@example.com"
+              />
+              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+            </div>
+          </div>
+        )}
+
         {uploadStatus === 'success' ? (
           <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-lg flex items-center justify-center gap-2">
             <span>Prescription uploaded successfully! We will contact you shortly.</span>
           </div>
         ) : (
-          <button
-            onClick={handleUpload}
-            disabled={!file || isUploading}
-            className={`w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all ${
-              !file
-                ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                : 'bg-brand-blue text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
-            }`}
-          >
-            {isUploading ? 'Uploading...' : 'Submit Prescription'}
-          </button>
+          <div className="flex flex-col md:flex-row gap-3">
+            {step === 'SELECT' && (
+              <button
+                onClick={handleNext}
+                disabled={!file}
+                className={`flex-1 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all ${
+                  !file
+                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    : 'bg-brand-blue text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
+                }`}
+              >
+                Next
+              </button>
+            )}
+            {step === 'DETAILS' && (
+              <button
+                onClick={handleUpload}
+                disabled={!file || isUploading}
+                className={`flex-1 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all ${
+                  !file || isUploading
+                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    : 'bg-brand-blue text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
+                }`}
+              >
+                {isUploading ? 'Uploading...' : 'Submit Prescription'}
+              </button>
+            )}
+          </div>
         )}
       </div>
 
@@ -140,7 +239,7 @@ const Pharmacy: React.FC = () => {
         <Store className="w-20 h-20 text-brand-blue" />
       </div>
       <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">
-        Pharmacy Store <span className="text-brand-blue">Coming Soon</span>
+        Online Pharmacy Store <span className="text-brand-blue">Coming Soon</span>
       </h2>
       <p className="text-xl text-slate-500 max-w-2xl mx-auto mb-12 leading-relaxed">
         We are building a comprehensive digital pharmacy experience. Soon you will be able to browse thousands of OTC medicines, wellness products, and medical devices directly from our app.

@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\UiSettingController;
 use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\PageController;
 use Illuminate\Http\Request;
 use App\Models\Role;
 
@@ -85,3 +86,11 @@ Route::delete('/roles/{role}', function (Role $role) {
     $role->delete();
     return response()->noContent();
 });
+
+// Pages management (backed by UiSetting 'page.*' keys)
+Route::get('/pages', [PageController::class, 'index']);
+Route::get('/pages/{slug}', [PageController::class, 'show']);
+Route::post('/pages', [PageController::class, 'store']);
+Route::put('/pages/{slug}', [PageController::class, 'update']);
+Route::patch('/pages/{slug}', [PageController::class, 'patch']);
+Route::delete('/pages/{slug}', [PageController::class, 'destroy']);

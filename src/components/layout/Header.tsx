@@ -26,15 +26,14 @@ const Header: React.FC = () => {
   const location = useLocation();
   const fallbackLinks = [
     { label: 'Video Consult', href: '/video-consult' },
-    { label: 'Lab Tests', href: '/lab-tests' },
   ];
 
   // Services dropdown items (map to existing routes where sensible)
   const servicesMenu = [
     { label: 'Primary Health Care', href: '/primary-health' },
     { label: 'Digital Health & Telemedicine', href: '/telemedicine' },
-    { label: 'Diagnostics & Laboratory', href: '/lab-tests' },
-    { label: 'Products', href: '/products' },
+    // { label: 'Diagnostics & Laboratory', href: '/lab-tests' }, // removed
+    { label: 'Health Package', href: '/health-package' },
     { label: 'Non-Emergency Medical Transport (NEMT)', href: '/nemt' },
     { label: 'Community Health Programs', href: '/community-health' },
   ];
@@ -89,23 +88,23 @@ const Header: React.FC = () => {
   const links = linksSource.map(l => ({ ...l, label: normalizeLabel(l.label) }));
   const linksAugmented = links;
 
-  // Insert "Products" link immediately to the right of "Easy Pharmacy"
-  const hasProductsLink = linksAugmented.some(
-    (l) => l.href === '/products' || (l.label && l.label.toLowerCase().includes('products'))
+  // Insert "Health Package" link immediately to the right of "Easy Pharmacy"
+  const hasHealthPackageLink = linksAugmented.some(
+    (l) => l.href === '/health-package' || (l.label && l.label.toLowerCase().includes('health package'))
   );
   let linksWithProducts = linksAugmented;
-  if (!hasProductsLink) {
+  if (!hasHealthPackageLink) {
     const pharmacyIndex = linksAugmented.findIndex(
       (l) => l.href === '/pharmacy' || (l.label && l.label.toLowerCase().includes('pharmacy'))
     );
     if (pharmacyIndex >= 0) {
       linksWithProducts = [
         ...linksAugmented.slice(0, pharmacyIndex + 1),
-        { label: 'Products', href: '/products' },
+        { label: 'Health Package', href: '/health-package' },
         ...linksAugmented.slice(pharmacyIndex + 1),
       ];
     } else {
-      linksWithProducts = [...linksAugmented, { label: 'Products', href: '/products' }];
+      linksWithProducts = [...linksAugmented, { label: 'Health Package', href: '/health-package' }];
     }
   }
   // Insert "Membership" link right after "Products"
@@ -115,7 +114,7 @@ const Header: React.FC = () => {
   let linksWithMembership = linksWithProducts;
   if (!hasMembershipLink) {
     const productsIndex = linksWithProducts.findIndex(
-      (l) => l.href === '/products' || (l.label && l.label.toLowerCase().includes('products'))
+      (l) => l.href === '/health-package' || (l.label && l.label.toLowerCase().includes('health package'))
     );
     const membershipItem = { label: 'Membership', href: '/membership' };
     if (productsIndex >= 0) {
@@ -136,7 +135,7 @@ const Header: React.FC = () => {
     (l) => !(l.href === '/video-consult' || (l.label && l.label.toLowerCase().includes('video consult')))
   );
   const labIndex = linksAdjusted.findIndex(
-    (l) => l.href === '/lab-tests' || (l.label && l.label.toLowerCase().includes('lab tests'))
+    (l) => false
   );
   const videoConsultItem = { label: 'Video Consult', href: '/telemedicine' };
   if (labIndex >= 0) {
@@ -149,9 +148,9 @@ const Header: React.FC = () => {
     linksAdjusted = [...linksAdjusted, videoConsultItem];
   }
 
-  // Insert "Easy Pharmacy" right after "Video Consult" and avoid duplicate Products
+  // Insert "Easy Pharmacy" right after "Video Consult" and avoid duplicate Health Package
   const productsIndex = linksAdjusted.findIndex(
-    (l) => l.href === '/products' || (l.label && l.label.toLowerCase().includes('products'))
+    (l) => l.href === '/health-package' || (l.label && l.label.toLowerCase().includes('health package'))
   );
   if (productsIndex >= 0) {
     linksAdjusted = [
@@ -173,15 +172,15 @@ const Header: React.FC = () => {
     linksAdjusted = [...linksAdjusted, easyPharmacyItem];
   }
 
-  // Add "Products" immediately after "Easy Pharmacy"
+  // Add "Health Package" immediately after "Easy Pharmacy"
   const hasProductsLink2 = linksAdjusted.some(
-    (l) => l.href === '/products' || (l.label && l.label.toLowerCase().includes('products'))
+    (l) => l.href === '/health-package' || (l.label && l.label.toLowerCase().includes('health package'))
   );
   if (!hasProductsLink2) {
     const easyIndex = linksAdjusted.findIndex(
       (l) => (l.label && l.label.toLowerCase().includes('easy pharmacy')) || l.href === '/pharmacy'
     );
-    const productsItem = { label: 'Products', href: '/products' };
+    const productsItem = { label: 'Health Package', href: '/health-package' };
     if (easyIndex >= 0) {
       linksAdjusted = [
         ...linksAdjusted.slice(0, easyIndex + 1),
@@ -350,7 +349,7 @@ const Header: React.FC = () => {
             </div>
             <a href="tel:+97714510101" className="inline-flex items-center gap-2 text-brand-blue font-semibold">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 16.92v2a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012 4.18 2 2 0 014 2h2a2 2 0 012 1.72c.12.89.37 1.76.73 2.58a2 2 0 01-.45 2.11L7 9a16 16 0 006 6l.59-.59a2 2 0 012.11-.45c.82.36 1.69.61 2.58.73A2 2 0 0122 16.92z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              <span>Emergency: +977 1-4510101</span>
+              <span>Support: +977 1-4510101</span>
             </a>
           </div>
           <div className="flex items-center gap-2">
@@ -507,9 +506,9 @@ const Header: React.FC = () => {
                           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15a2 2 0 01-2 2h-4l-3 3-3-3H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v9z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                           Contact
                         </Link>
-                        <Link to="/products" role="menuitem" className="inline-flex items-center gap-2 text-sm text-brand-gray-700 hover:text-brand-blue">
+  <Link to="/health-package" role="menuitem" className="inline-flex items-center gap-2 text-sm text-brand-gray-700 hover:text-brand-blue">
                           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 12H4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M4 12l4-4M4 12l4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                          Products
+  Health Package
                         </Link>
                         <Link to="/membership" role="menuitem" className="inline-flex items-center gap-2 text-sm text-brand-gray-700 hover:text-brand-blue">
                           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 8l-6 6h12l-6-6z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>

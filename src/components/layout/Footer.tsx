@@ -59,7 +59,7 @@ const Footer: React.FC = () => {
             <FooterLinkColumn title="For Patients">
               <li><Link to="/find-doctors" className="hover:text-brand-blue">Find Doctors</Link></li>
               <li><Link to="/video-consult" className="hover:text-brand-blue">Video Consult</Link></li>
-              <li><Link to="/lab-tests" className="hover:text-brand-blue">Lab Tests</Link></li>
+              {/* Lab Tests link removed */}
               <li><Link to="/pharmacy" className="hover:text-brand-blue">Pharmacy</Link></li>
               <li><Link to="/primary-health" className="hover:text-brand-blue">Primary Health</Link></li>
             </FooterLinkColumn>

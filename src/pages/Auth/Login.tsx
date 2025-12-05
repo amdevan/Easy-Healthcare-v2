@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Button from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
+import GoogleLogo from '@/assets/icons/google.svg';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ const Login: React.FC = () => {
 
     // Basic demo validation; replace with real auth when available
     if (!email || !password) {
-      setError('Please enter both email and password.');
+      setError('Please enter your email or phone and password.');
       setIsLoading(false);
       return;
     }
@@ -30,6 +31,12 @@ const Login: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSocialLogin = (provider: 'google' | 'apple') => {
+    // Placeholder for real OAuth flow. For now, simulate auth and navigate.
+    login();
+    navigate('/dashboard');
   };
 
   return (
@@ -82,13 +89,13 @@ const Login: React.FC = () => {
                 )}
 
                 <div className="space-y-1.5">
-                  <label htmlFor="email" className="block text-sm font-medium text-brand-gray-700">Email address</label>
+                  <label htmlFor="email" className="block text-sm font-medium text-brand-gray-700">Email / phone</label>
                   <input
                     id="email"
                     name="email"
-                    type="email"
-                    autoComplete="email"
-                    placeholder="name@example.com"
+                    type="text"
+                    autoComplete="username"
+                    placeholder="Email or phone"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="block w-full rounded-lg border border-brand-gray-300 focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/20 px-4 py-2.5 text-brand-gray-900 placeholder-brand-gray-400 outline-none"
@@ -120,6 +127,58 @@ const Login: React.FC = () => {
                   {isLoading ? 'Signing in…' : 'Sign in'}
                 </Button>
               </form>
+
+              {/* Social login options */}
+              <div className="mt-6">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-brand-gray-200" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-brand-gray-500">Or continue with</span>
+                  </div>
+                </div>
+              <div className="mt-4 grid grid-cols-3 gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleSocialLogin('google')}
+                  className="flex items-center justify-center gap-2 w-full rounded-lg bg-[#4285F4] hover:bg-[#357AE8] text-white px-4 py-2.5"
+                >
+                  <img
+                    src={GoogleLogo}
+                    alt="Google logo"
+                    className="h-5 w-5 inline-block"
+                    width={20}
+                    height={20}
+                  />
+                  <span className="font-medium">Google</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSocialLogin('apple')}
+                  className="flex items-center justify-center gap-2 w-full rounded-lg bg-black hover:bg-[#111111] text-white px-4 py-2.5"
+                >
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
+                    alt="Apple logo"
+                    className="h-5 w-5 inline-block"
+                    width={20}
+                    height={20}
+                    referrerPolicy="no-referrer"
+                    style={{ filter: 'invert(1)' }}
+                  />
+                  <span className="font-medium">Apple</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate('/auth/login-phone')}
+                  className="flex items-center justify-center gap-2 w-full rounded-lg bg-white border border-brand-gray-300 hover:bg-brand-gray-50 text-brand-gray-900 px-4 py-2.5"
+                >
+                  <span className="h-5 w-5 inline-flex items-center justify-center">📱</span>
+                  <span className="font-medium">Phone</span>
+                </button>
+              </div>
+              </div>
 
               <div className="mt-6">
                 <div className="relative">
