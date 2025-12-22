@@ -20,10 +20,11 @@ class SettingResource extends Resource
     protected static ?string $modelLabel = 'Setting';
     protected static ?string $pluralModelLabel = 'Settings';
     protected static ?string $navigationLabel = 'Settings';
+    protected static ?int $navigationSort = 100;
 
     public static function getNavigationGroup(): string | \UnitEnum | null
     {
-        return 'Settings';
+        return 'UI Setting';
     }
 
     public static function form(Schema $schema): Schema

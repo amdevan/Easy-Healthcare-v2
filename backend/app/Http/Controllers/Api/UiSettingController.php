@@ -83,4 +83,30 @@ class UiSettingController extends Controller
         $setting->delete();
         return response()->json(['status' => 'deleted']);
     }
+
+    public function getHtml(string $key)
+    {
+        $setting = UiSetting::query()->where('key', $key)->first();
+        if (! $setting) {
+            return response()->json('');
+        }
+        $val = $setting->value ?? [];
+        $html = is_string($val) ? $val : ($val['html'] ?? ($val['content'] ?? ''));
+        return response()->json($html);
+    }
+
+    public function setHtml(Request $request, string $key)
+    {
+        $validated = $request->validate([
+            'html' => ['nullable', 'string'],
+        ]);
+
+        $setting = UiSetting::query()->firstOrCreate(['key' => $key], ['value' => []]);
+        $val = $setting->value ?? [];
+        $val['html'] = $validated['html'] ?? '';
+        $setting->value = $val;
+        $setting->save();
+
+        return response()->json(['status' => 'ok', 'key' => $key, 'value' => $setting->value]);
+    }
 }

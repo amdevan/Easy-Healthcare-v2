@@ -1,6 +1,33 @@
 import { Star, Clock, Shield, Truck } from "lucide-react";
+import { getIcon } from "@/utils/iconMapper";
 
-export default function Hero() {
+interface HeroStat {
+  label: string;
+  value: string;
+  icon?: string;
+}
+
+interface HeroProps {
+  title?: string;
+  subtitle?: string;
+  image?: string;
+  stats?: HeroStat[];
+}
+
+export default function Hero({ title, subtitle, image, stats }: HeroProps) {
+  const defaultStats: HeroStat[] = [
+    { label: "Certified", value: "NABL Labs", icon: "shield" },
+    { label: "Collection", value: "Home Pickup", icon: "truck" },
+    { label: "Reports", value: "24-48 Hours", icon: "clock" },
+    { label: "Rating", value: "4.8 / 5", icon: "star" }
+  ];
+
+  const displayStats = stats && stats.length > 0 ? stats : defaultStats;
+
+  const renderIcon = (iconName?: string) => {
+    const Icon = getIcon(iconName);
+    return Icon ? <Icon className="mr-2 h-5 w-5 text-sky-600" /> : null;
+  };
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-sky-50 via-cyan-50 to-indigo-50">
       {/* Decorative background */}
@@ -21,12 +48,10 @@ export default function Hero() {
             </div>
 
             <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-              Lab Testing, Reimagined
+              {title || "Lab Testing, Reimagined"}
             </h1>
             <p className="mt-4 text-lg leading-8 text-slate-600">
-              Book lab tests from trusted NABL-certified labs, get home sample
-              collection, and receive digital reports—fast, secure, and
-              hassle-free.
+              {subtitle || "Book lab tests from trusted NABL-certified labs, get home sample collection, and receive digital reports—fast, secure, and hassle-free."}
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
@@ -45,33 +70,31 @@ export default function Hero() {
             </div>
 
             <dl className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-4">
-              <div className="rounded-xl bg-white/70 p-4 text-center shadow-sm ring-1 ring-slate-200">
-                <dt className="flex items-center justify-center text-slate-500">
-                  <Shield className="mr-2 h-5 w-5 text-sky-600" /> Certified
-                </dt>
-                <dd className="mt-2 text-lg font-semibold text-slate-900">NABL Labs</dd>
-              </div>
-              <div className="rounded-xl bg-white/70 p-4 text-center shadow-sm ring-1 ring-slate-200">
-                <dt className="flex items-center justify-center text-slate-500">
-                  <Truck className="mr-2 h-5 w-5 text-sky-600" /> Collection
-                </dt>
-                <dd className="mt-2 text-lg font-semibold text-slate-900">Home Pickup</dd>
-              </div>
-              <div className="rounded-xl bg-white/70 p-4 text-center shadow-sm ring-1 ring-slate-200">
-                <dt className="flex items-center justify-center text-slate-500">
-                  <Clock className="mr-2 h-5 w-5 text-sky-600" /> Reports
-                </dt>
-                <dd className="mt-2 text-lg font-semibold text-slate-900">24-48 Hours</dd>
-              </div>
-              <div className="rounded-xl bg-white/70 p-4 text-center shadow-sm ring-1 ring-slate-200">
-                <dt className="flex items-center justify-center text-slate-500">Rating</dt>
-                <dd className="mt-2 text-lg font-semibold text-slate-900">4.8 / 5</dd>
-              </div>
+              {displayStats.map((stat, index) => {
+                const Icon = stat.icon ? (getIcon(stat.icon) || Shield) : Shield;
+                return (
+                  <div key={index} className="rounded-xl bg-white/70 p-4 text-center shadow-sm ring-1 ring-slate-200">
+                    <dt className="flex items-center justify-center text-slate-500">
+                      <Icon className="mr-2 h-5 w-5 text-sky-600" /> {stat.label}
+                    </dt>
+                    <dd className="mt-2 text-lg font-semibold text-slate-900">{stat.value}</dd>
+                  </div>
+                );
+              })}
             </dl>
           </div>
 
           {/* Right: visual/card */}
           <div className="relative">
+            {image ? (
+              <div className="relative mx-auto w-full max-w-md">
+                 <img 
+                   src={image} 
+                   alt={title || "Lab Tests"} 
+                   className="rounded-2xl shadow-xl ring-1 ring-slate-200 object-cover w-full h-auto"
+                 />
+              </div>
+            ) : (
             <div className="relative mx-auto w-full max-w-md">
               <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200">
                 <div className="flex items-center justify-between">
@@ -119,6 +142,7 @@ export default function Hero() {
                 </span>
               </div>
             </div>
+            )}
           </div>
         </div>
       </div>

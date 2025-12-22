@@ -17,6 +17,7 @@ class ArticleResource extends Resource
 {
     protected static ?string $model = Article::class;
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-document-text';
+    protected static ?int $navigationSort = 3;
 
     public static function getNavigationGroup(): string | \UnitEnum | null
     {
@@ -34,9 +35,8 @@ class ArticleResource extends Resource
                 ->required()
                 ->maxLength(255)
                 ->helperText('Used in URLs; keep it short and unique.'),
-            Forms\Components\Textarea::make('content')
+            Forms\Components\RichEditor::make('content')
                 ->columnSpanFull()
-                ->rows(12)
                 ->placeholder('Write the article body here...'),
             Forms\Components\DateTimePicker::make('published_at')
                 ->label('Publish at')

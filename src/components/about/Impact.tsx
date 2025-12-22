@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Users, Building, GraduationCap, Home, CheckCircle2 } from 'lucide-react';
+import { getIcon } from '@/utils/iconMapper';
+import { CheckCircle2 } from 'lucide-react';
 
 // Enhanced Counter for smoother animation
 const Counter = ({ end, suffix = "" }: { end: number, suffix?: string }) => {
@@ -44,7 +45,11 @@ const Counter = ({ end, suffix = "" }: { end: number, suffix?: string }) => {
       const currentVal = ease * end;
       
       // Smart formatting during animation
-      if (end >= 1000) {
+      if (end >= 1000000) {
+        const inM = currentVal / 1000000;
+        const formatted = inM.toFixed(1).replace(/\.0$/, '');
+        setDisplayValue(`${formatted}M`);
+      } else if (end >= 1000) {
         // For large numbers (e.g. 10k), show decimal precision during animation for smoothness
         // e.g. 1.2k, 5.5k...
         const inK = currentVal / 1000;
@@ -59,7 +64,10 @@ const Counter = ({ end, suffix = "" }: { end: number, suffix?: string }) => {
         animationFrame = requestAnimationFrame(animate);
       } else {
          // Final state: Ensure clean formatting matches target
-         if (end >= 1000) {
+         if (end >= 1000000) {
+             const inM = end / 1000000;
+             setDisplayValue(`${inM}M`);
+         } else if (end >= 1000) {
              const inK = end / 1000;
              setDisplayValue(`${inK}k`);
          } else {
@@ -75,7 +83,65 @@ const Counter = ({ end, suffix = "" }: { end: number, suffix?: string }) => {
   return <span ref={ref}>{displayValue}{suffix}</span>;
 };
 
-const Impact: React.FC = () => {
+interface ImpactStat {
+    label: string;
+    value: string;
+    icon: string;
+}
+
+interface ImpactArea {
+    title: string;
+    description: string;
+}
+
+export interface ImpactProps {
+    title?: string;
+    subtitle?: string;
+    description?: string;
+    stats?: ImpactStat[];
+    areas?: ImpactArea[];
+}
+
+const Impact: React.FC<ImpactProps> = ({
+    title = "Making a Real Impact",
+    subtitle = "Our Reach",
+    description,
+    stats = [],
+    areas = []
+}) => {
+    
+    // Fallback data
+    const displayStats = stats.length > 0 ? stats : [
+        { icon: "Users", value: "10000+", label: "Patients Served" },
+        { icon: "Building", value: "15+", label: "Municipal Partners" },
+        { icon: "GraduationCap", value: "200+", label: "Workers Trained" },
+        { icon: "Home", value: "5000+", label: "Home Visits" }
+    ];
+
+    const displayAreas = areas.length > 0 ? areas : [
+        { title: "Urban & Semi-urban Access", description: "Improved healthcare access in urban & semi-urban regions" },
+        { title: "Elderly Support", description: "Specialized support for elderly and urban poor communities" },
+        { title: "Professional Training", description: "Employment & training for healthcare professionals" },
+        { title: "PHC Strengthening", description: "Strengthened municipal Primary Health Centers (PHCs)" },
+        { title: "Chronic Care", description: "Medication delivery & transport for chronic patients" }
+    ];
+
+    const parseValue = (valStr: string) => {
+        const lower = valStr.toLowerCase();
+        let num = parseFloat(lower.replace(/[^0-9.]/g, ''));
+        let suffix = lower.replace(/[0-9.km]/g, ''); // remove numbers, dots, k, m
+        
+        if (lower.includes('k')) num *= 1000;
+        if (lower.includes('m')) num *= 1000000;
+        
+        return { 
+            val: isNaN(num) ? 0 : num, 
+            suffix: suffix.trim() 
+        };
+    };
+
+    const colors = ["blue", "green", "purple", "rose"];
+
   return (
     <section className="py-16 bg-white relative overflow-hidden border-t border-slate-50">
        {/* Map Background - Visualizes reach */}
@@ -92,35 +158,34 @@ const Impact: React.FC = () => {
         
         <div className="text-center mb-12">
            <div className="inline-block p-1.5 px-3 rounded-full bg-green-50 text-green-700 text-[10px] font-bold tracking-widest uppercase mb-2">
-              Our Reach
+              {subtitle}
            </div>
-           <h2 className="text-3xl font-bold text-slate-900 mb-2">Making a Real Impact</h2>
+           <h2 className="text-3xl font-bold text-slate-900 mb-2">{title}</h2>
            <p className="text-slate-600 text-sm md:text-base max-w-2xl mx-auto">
-             Since inception, Easy Health Care has served thousands of patients through its clinics and digital services.
+             {description ? <span dangerouslySetInnerHTML={{ __html: description }} /> : "Since inception, Easy Health Care has served thousands of patients through its clinics and digital services."}
            </p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
            
-           {[
-             { icon: Users, val: 10000, suffix: "+", label: "Patients Served", color: "blue" },
-             { icon: Building, val: 15, suffix: "+", label: "Municipal Partners", color: "green" },
-             { icon: GraduationCap, val: 200, suffix: "+", label: "Workers Trained", color: "purple" },
-             { icon: Home, val: 5000, suffix: "+", label: "Home Visits", color: "rose" }
-           ].map((stat, i) => {
+          {displayStats.map((stat, i) => {
+            const Icon = getIcon(stat.icon) || CheckCircle2;
+            const { val, suffix } = parseValue(stat.value);
+            const color = colors[i % colors.length];
+
              return (
                 <div key={i} className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center group">
                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 transition-transform group-hover:scale-110 ${
-                     stat.color === 'blue' ? 'bg-blue-50 text-blue-600' : 
-                     stat.color === 'green' ? 'bg-green-50 text-green-600' : 
-                     stat.color === 'purple' ? 'bg-purple-50 text-purple-600' : 
+                     color === 'blue' ? 'bg-blue-50 text-blue-600' : 
+                     color === 'green' ? 'bg-green-50 text-green-600' : 
+                     color === 'purple' ? 'bg-purple-50 text-purple-600' : 
                      'bg-rose-50 text-rose-600'
                    }`}>
-                      <stat.icon size={26} />
+                      <Icon size={26} />
                    </div>
                    <h3 className="text-4xl lg:text-5xl font-extrabold text-slate-900 mb-2 tracking-tight">
-                     <Counter end={stat.val} suffix={stat.suffix} />
+                     <Counter end={val} suffix={suffix} />
                    </h3>
                    <p className="text-slate-500 font-bold text-xs uppercase tracking-wider">{stat.label}</p>
                 </div>
@@ -145,18 +210,15 @@ const Impact: React.FC = () => {
                 </button>
              </div>
              <div className="lg:col-span-2 grid sm:grid-cols-2 gap-y-4 gap-x-8">
-                {[
-                   "Improved healthcare access in urban & semi-urban regions",
-                   "Specialized support for elderly and urban poor communities",
-                   "Employment & training for healthcare professionals",
-                   "Strengthened municipal Primary Health Centers (PHCs)",
-                   "Medication delivery & transport for chronic patients"
-                ].map((item, i) => (
+                {displayAreas.map((item, i) => (
                    <div key={i} className="flex items-start gap-3 group">
                       <div className="mt-0.5 p-0.5 rounded-full bg-green-500/20 text-green-400 group-hover:bg-green-500 group-hover:text-white transition-colors">
                         <CheckCircle2 size={16} />
                       </div>
-                      <span className="text-slate-300 text-sm font-medium leading-relaxed group-hover:text-white transition-colors">{item}</span>
+                      <div className="flex flex-col">
+                        <span className="text-white font-medium text-sm">{item.title}</span>
+                        <span className="text-slate-400 text-xs leading-relaxed group-hover:text-slate-300 transition-colors">{item.description}</span>
+                      </div>
                    </div>
                 ))}
              </div>

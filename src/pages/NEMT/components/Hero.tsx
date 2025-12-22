@@ -1,7 +1,17 @@
 import React from 'react';
 import { Phone, ArrowRight, ShieldCheck, Clock, Heart } from 'lucide-react';
+import { resolveSrc } from '@/utils/url';
 
-const Hero: React.FC = () => {
+interface HeroProps {
+  title?: string;
+  subtitle?: string;
+  image?: string;
+}
+
+const Hero: React.FC<HeroProps> = ({ title, subtitle, image }) => {
+  const defaultImage = 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=1000&auto=format&fit=crop';
+  const imgSrc = image ? resolveSrc(image) : defaultImage;
+
   return (
     <section className="relative bg-slate-50 pt-24 lg:pt-32 pb-16 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -11,16 +21,20 @@ const Hero: React.FC = () => {
           <div className="flex-1 text-center lg:text-left z-10">
             <div className="inline-flex items-center px-3 py-1 rounded-full bg-teal-100 text-teal-800 text-sm font-semibold mb-6 border border-teal-200">
               <span className="flex h-2 w-2 bg-teal-500 rounded-full mr-2 animate-pulse"></span>
-              Serving Kathmandu Valley & Beyond
+              <span>Serving Kathmandu Valley & Beyond</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-slate-900 mb-6 tracking-tight">
-              Care That Goes <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">
-                The Extra Mile
-              </span>
+              {title ? title : (
+                <>
+                  Care That Goes <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">
+                    The Extra Mile
+                  </span>
+                </>
+              )}
             </h1>
             <p className="text-lg md:text-xl text-slate-600 mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-              Professional Non-Emergency Medical Transportation (NEMT) ensuring safe, comfortable, and dignified travel for you and your loved ones.
+              {subtitle || "Professional Non-Emergency Medical Transportation (NEMT) ensuring safe, comfortable, and dignified travel for you and your loved ones."}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -65,7 +79,7 @@ const Hero: React.FC = () => {
             
             <div className="relative rounded-3xl overflow-hidden shadow-2xl transform lg:rotate-2 transition-transform hover:rotate-0 border-4 border-white">
               <img 
-                src="https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=1000&auto=format&fit=crop" 
+                src={imgSrc} 
                 alt="Caring medical staff helping patient" 
                 className="w-full h-full object-cover"
               />

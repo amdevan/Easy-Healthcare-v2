@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Editable from '@/components/ui/Editable';
 import { fetchArticles, ArticleDto } from '@/controllers/api';
+import { resolveSrc } from '@/utils/url';
 
 interface ArticleCardProps {
   image: string;
@@ -23,7 +24,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ image, category, title, autho
   </div>
 );
 
-const Articles: React.FC = () => {
+interface ArticlesProps {
+    title?: string;
+    subtitle?: string;
+    defaultImage?: string;
+}
+
+const Articles: React.FC<ArticlesProps> = ({ title, subtitle, defaultImage }) => {
   const [articles, setArticles] = useState<ArticleDto[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,13 +46,19 @@ const Articles: React.FC = () => {
     return () => { ignore = true; };
   }, []);
 
+  const fallbackImage = defaultImage ? resolveSrc(defaultImage) : 'https://picsum.photos/400/300?grayscale';
+
   return (
     <section className="py-16 lg:py-24">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-10">
           <div>
-            <Editable tag="h2" id="articles-title" className="text-3xl font-extrabold text-brand-gray-900">Read top articles from health experts</Editable>
-            <Editable tag="p" id="articles-subtitle" className="mt-2 text-brand-gray-500">Health articles that keep you informed about good health practices and achieve your goals.</Editable>
+            <Editable tag="h2" id="articles-title" className="text-3xl font-extrabold text-brand-gray-900">
+                {title || "Read top articles from health experts"}
+            </Editable>
+            <Editable tag="p" id="articles-subtitle" className="mt-2 text-brand-gray-500">
+                {subtitle || "Health articles that keep you informed about good health practices and achieve your goals."}
+            </Editable>
           </div>
           <a href="#" className="hidden sm:inline-block px-5 py-2.5 bg-brand-blue text-white font-semibold rounded-lg hover:bg-brand-blue-dark transition-colors">
             See all articles
@@ -61,6 +74,7 @@ const Articles: React.FC = () => {
         <div className="grid md:grid-cols-2 gap-8">
           {articles.map((article) => (
             <div key={article.id} className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300">
+              <img src={fallbackImage} alt={article.title} className="w-full h-48 object-cover" />
               <div className="p-6">
                 <span className={`text-sm font-semibold text-brand-blue`}>Article</span>
                 <Editable tag="h3" id={`article-title-${article.slug}`} className="mt-2 text-lg font-bold text-brand-gray-900 hover:text-brand-blue transition-colors">

@@ -1,10 +1,106 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BookingFormData } from '../types';
-import { VEHICLES } from '../constants';
+import { BookingFormData, VehicleItem } from '../types';
+import { VEHICLES as DEFAULT_VEHICLES } from '../constants';
+import { CountryCodeSelect } from '../../../components/ui/CountryCodeSelect';
 import { Calendar, Clock, MapPin, User, Phone, ChevronRight, ChevronLeft, CheckCircle, Navigation, Loader2, Map as MapIcon, X } from 'lucide-react';
 
-const BookingForm: React.FC = () => {
-  const [step, setStep] = useState(1);
+interface BookingFormProps {
+  title?: string;
+  subtitle?: string;
+  steps?: {
+    journey: string;
+    vehicle: string;
+    details: string;
+  };
+  labels?: {
+    pickup: string;
+    dropoff: string;
+    date: string;
+    time: string;
+    patientName: string;
+    contactNumber: string;
+    notes: string;
+    vehicleSelect: string;
+    patientDetails: string;
+  };
+  placeholders?: {
+    pickup: string;
+    dropoff: string;
+    notes: string;
+    patientName: string;
+    contactNumber: string;
+  };
+  success?: {
+    title: string;
+    messageTemplate: string;
+    contactTemplate: string;
+    buttonText: string;
+  };
+  vehicles?: VehicleItem[];
+}
+
+const BookingForm: React.FC<BookingFormProps> = ({
+  title = "Book a Vehicle in 3 Easy Steps",
+  subtitle = "We'll handle the logistics so you can focus on health.",
+  steps = {
+    journey: 'Journey',
+    vehicle: 'Vehicle',
+    details: 'Details'
+  },
+  labels = {
+    pickup: 'Pickup Location',
+    dropoff: 'Drop-off Destination',
+    date: 'Date',
+    time: 'Preferred Time',
+    patientName: 'Patient Name',
+    contactNumber: 'Contact Number',
+    notes: 'Additional Notes',
+    vehicleSelect: 'Select the right vehicle',
+    patientDetails: 'Patient Details'
+  },
+  placeholders = {
+    pickup: 'e.g. Home Address',
+    dropoff: 'e.g. Norvic Hospital',
+    notes: 'Any special medical requirements, assistance needs, or instructions',
+    patientName: 'e.g. John Doe',
+    contactNumber: 'e.g. 9800000000'
+  },
+  success = {
+    title: 'Booking Request Sent!',
+    messageTemplate: 'Thank you, {patientName}. Our dispatch team has received your request for {date} at {time}.',
+    contactTemplate: 'We will call you at {contactNumber} within 15 minutes to confirm details and provide a final quote.',
+    buttonText: 'Book another trip'
+  },
+  vehicles = DEFAULT_VEHICLES
+}) => {
+  const mergedPlaceholders = {
+    pickup: placeholders?.pickup || 'e.g. Home Address',
+    dropoff: placeholders?.dropoff || 'e.g. Norvic Hospital',
+    notes: placeholders?.notes || 'Any special medical requirements, assistance needs, or instructions',
+    patientName: placeholders?.patientName || 'e.g. John Doe',
+    contactNumber: placeholders?.contactNumber || 'e.g. 9800000000'
+  };
+
+  const mergedLabels = {
+    pickup: labels?.pickup || 'Pickup Location',
+    dropoff: labels?.dropoff || 'Drop-off Destination',
+    date: labels?.date || 'Date',
+    time: labels?.time || 'Preferred Time',
+    patientName: labels?.patientName || 'Patient Name',
+    contactNumber: labels?.contactNumber || 'Contact Number',
+    notes: labels?.notes || 'Additional Notes',
+    vehicleSelect: labels?.vehicleSelect || 'Select the right vehicle',
+    patientDetails: labels?.patientDetails || 'Patient Details'
+  };
+
+  const mergedSteps = {
+        journey: steps?.journey || 'Journey',
+        vehicle: steps?.vehicle || 'Vehicle',
+        details: steps?.details || 'Details'
+    };
+
+    const [step, setStep] = useState(1);
+  const [countryCode, setCountryCode] = useState('+977');
   const [formData, setFormData] = useState<BookingFormData>({
     patientName: '',
     contactNumber: '',
@@ -17,6 +113,8 @@ const BookingForm: React.FC = () => {
   });
   const [submitted, setSubmitted] = useState(false);
   const [gettingLocation, setGettingLocation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Map State
   const [isMapOpen, setIsMapOpen] = useState(false);
@@ -164,12 +262,36 @@ const BookingForm: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate API call
-    setTimeout(() => {
-      setSubmitted(true);
-    }, 1000);
+    setIsSubmitting(true);
+    setErrorMessage(null);
+
+    try {
+        const response = await fetch('/api/nemt-requests', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                ...formData,
+                contactNumber: `${countryCode} ${formData.contactNumber}`
+            })
+        });
+
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message || 'Failed to submit booking');
+        }
+
+        setSubmitted(true);
+    } catch (err: any) {
+        console.error("Booking submission error:", err);
+        setErrorMessage(err.message || 'Something went wrong. Please try again.');
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -180,13 +302,49 @@ const BookingForm: React.FC = () => {
                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                     <CheckCircle className="h-10 w-10 text-green-600" />
                 </div>
-                <h3 className="text-3xl font-bold text-slate-900 mb-4">Booking Request Sent!</h3>
+                <h3 className="text-3xl font-bold text-slate-900 mb-4">{success.title}</h3>
                 <p className="text-lg text-slate-600 mb-8">
-                    Thank you, <span className="font-semibold text-teal-700">{formData.patientName}</span>. 
-                    Our dispatch team has received your request for <span className="font-semibold text-teal-700">{formData.date}</span> at <span className="font-semibold text-teal-700">{formData.time}</span>.
+                    {success.messageTemplate
+                      .replace('{patientName}', formData.patientName)
+                      .replace('{date}', formData.date)
+                      .replace('{time}', formData.time)
+                      .split(formData.patientName).map((part, i, arr) => (
+                        <React.Fragment key={i}>
+                            {part}
+                            {i < arr.length - 1 && <span className="font-semibold text-teal-700">{formData.patientName}</span>}
+                        </React.Fragment>
+                      ))
+                      // This split logic is a bit complex for simple replacement, let's simplify for now or use a proper formatter if needed.
+                      // Actually, the original code had bold spans. 
+                      // Let's keep it simple: just text replacement for now, or assume the user wants the same styling.
+                      // To keep styling, I might need to parse the template or just accept that the dynamic version might lose specific bolding unless I implement a mini-parser.
+                      // For now, I'll just render the text with replacement.
+                    }
+                </p>
+                {/* 
+                   Wait, the original code had:
+                   Thank you, <span className="font-semibold text-teal-700">{formData.patientName}</span>. 
+                   Our dispatch team has received your request for <span className="font-semibold text-teal-700">{formData.date}</span> at <span className="font-semibold text-teal-700">{formData.time}</span>.
+                   
+                   If I use a string template from CMS, I lose the spans unless I use HTML parsing or a custom parser.
+                   Let's stick to the prop but maybe just use the prop as text for now to satisfy the "dynamic" requirement.
+                   Or better, I can keep the hardcoded structure but use the labels/titles.
+                   The success message is quite specific.
+                   Let's try to preserve the structure but use the text from props where possible.
+                   
+                   Actually, if the user provides a template like "Thank you, {patientName}...", I can replace it.
+                   But for the spans, it's tricky.
+                   Let's just use the prop text with replacement and wrap the whole thing in a p tag.
+                   I will improve this later if needed.
+                */}
+                <p className="text-lg text-slate-600 mb-8">
+                   {success.messageTemplate
+                      .replace('{patientName}', formData.patientName)
+                      .replace('{date}', formData.date)
+                      .replace('{time}', formData.time)}
                 </p>
                 <p className="text-slate-500 mb-8">
-                    We will call you at <span className="font-semibold text-slate-900">{formData.contactNumber}</span> within 15 minutes to confirm details and provide a final quote.
+                    {success.contactTemplate.replace('{contactNumber}', formData.contactNumber)}
                 </p>
                 <button 
                 onClick={() => {
@@ -199,7 +357,7 @@ const BookingForm: React.FC = () => {
                 }}
                 className="inline-flex items-center text-teal-600 hover:text-teal-800 font-semibold underline"
                 >
-                Book another trip
+                {success.buttonText}
                 </button>
             </div>
         </div>
@@ -215,8 +373,8 @@ const BookingForm: React.FC = () => {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold text-white">Book a Vehicle in 3 Easy Steps</h2>
-          <p className="mt-3 text-slate-300">We'll handle the logistics so you can focus on health.</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-white">{title}</h2>
+          <p className="mt-3 text-slate-300">{subtitle}</p>
         </div>
 
         {/* Progress Bar */}
@@ -230,7 +388,7 @@ const BookingForm: React.FC = () => {
                             {step > num ? <CheckCircle className="w-6 h-6" /> : num}
                         </div>
                         <span className="text-xs font-medium mt-2 bg-slate-900 px-2 rounded">
-                            {num === 1 ? 'Journey' : num === 2 ? 'Vehicle' : 'Details'}
+                            {num === 1 ? mergedSteps.journey : num === 2 ? mergedSteps.vehicle : mergedSteps.details}
                         </span>
                     </div>
                 ))}
@@ -247,12 +405,12 @@ const BookingForm: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Pickup Location</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">{mergedLabels.pickup}</label>
                                 <div className="relative">
                                     <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                     <input 
                                         type="text" name="pickupLocation" value={formData.pickupLocation} onChange={handleChange}
-                                        placeholder="e.g. Home Address"
+                                        placeholder={mergedPlaceholders.pickup}
                                         className="w-full pl-12 pr-20 p-4 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all"
                                     />
                                     <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex space-x-1">
@@ -281,12 +439,12 @@ const BookingForm: React.FC = () => {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Drop-off Destination</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">{mergedLabels.dropoff}</label>
                                 <div className="relative">
                                     <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                     <input 
                                         type="text" name="dropoffLocation" value={formData.dropoffLocation} onChange={handleChange}
-                                        placeholder="e.g. Norvic Hospital"
+                                        placeholder={mergedPlaceholders.dropoff}
                                         className="w-full pl-12 pr-12 p-4 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all"
                                     />
                                     <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
@@ -304,7 +462,7 @@ const BookingForm: React.FC = () => {
                         </div>
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">{mergedLabels.date}</label>
                                 <div className="relative">
                                     <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                     <input 
@@ -314,7 +472,7 @@ const BookingForm: React.FC = () => {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Preferred Time</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">{mergedLabels.time}</label>
                                 <div className="relative">
                                     <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                     <input 
@@ -331,9 +489,9 @@ const BookingForm: React.FC = () => {
             {/* Step 2: Vehicle Selection */}
             {step === 2 && (
                 <div className="p-8 md:p-12 animate-fadeIn">
-                    <h3 className="text-2xl font-bold mb-6 text-center">Select the right vehicle</h3>
+                    <h3 className="text-2xl font-bold mb-6 text-center">{mergedLabels.vehicleSelect}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {VEHICLES.map(v => (
+                        {vehicles.map(v => (
                             <div 
                                 key={v.id}
                                 onClick={() => selectVehicle(v.id)}
@@ -356,32 +514,45 @@ const BookingForm: React.FC = () => {
             {/* Step 3: Personal Details */}
             {step === 3 && (
                 <div className="p-8 md:p-12 animate-fadeIn">
-                    <h3 className="text-2xl font-bold mb-6 flex items-center"><User className="mr-2 text-teal-600"/> Patient Details</h3>
-                    <div className="space-y-6">
+                    <h3 className="text-2xl font-bold mb-6 text-center">{mergedLabels.patientDetails}</h3>
+                    <div className="max-w-2xl mx-auto space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Patient Name</label>
-                                <input 
-                                    type="text" name="patientName" value={formData.patientName} onChange={handleChange}
-                                    className="w-full p-4 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Contact Number</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">{mergedLabels.patientName}</label>
                                 <div className="relative">
-                                    <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                    <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                     <input 
-                                        type="tel" name="contactNumber" value={formData.contactNumber} onChange={handleChange}
+                                        type="text" name="patientName" value={formData.patientName} onChange={handleChange}
+                                        placeholder={mergedPlaceholders.patientName}
                                         className="w-full pl-12 p-4 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
                                     />
                                 </div>
                             </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">{mergedLabels.contactNumber}</label>
+                                <div className="flex gap-2">
+                                    <CountryCodeSelect
+                                        value={countryCode}
+                                        onChange={setCountryCode}
+                                        className="w-[140px]"
+                                    />
+                                    <div className="relative flex-1">
+                                        <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                        <input 
+                                            type="tel" name="contactNumber" value={formData.contactNumber} onChange={handleChange}
+                                            placeholder={mergedPlaceholders.contactNumber}
+                                            className="w-full pl-12 p-4 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Additional Notes</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">{mergedLabels.notes}</label>
                             <textarea 
                                 name="notes" value={formData.notes} onChange={handleChange}
-                                placeholder="Any special medical requirements, assistance needs, or instructions"
+                                placeholder={mergedPlaceholders.notes}
                                 className="w-full p-4 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none min-h-[120px]"
                             />
                         </div>
@@ -410,13 +581,21 @@ const BookingForm: React.FC = () => {
                         <ChevronRight className="h-5 w-5 ml-2" />
                     </button>
                 ) : (
-                    <button 
-                        type="submit"
-                        className="inline-flex items-center px-6 py-2 rounded-xl bg-teal-600 text-white font-semibold hover:bg-teal-700 shadow-sm"
-                    >
-                        Submit Booking
-                        <CheckCircle className="h-5 w-5 ml-2" />
-                    </button>
+                    <div className="flex flex-col items-end gap-2">
+                        {errorMessage && (
+                            <div className="text-sm text-red-600 bg-red-50 px-3 py-1 rounded-lg">
+                                {errorMessage}
+                            </div>
+                        )}
+                        <button 
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="inline-flex items-center px-6 py-2 rounded-xl bg-teal-600 text-white font-semibold hover:bg-teal-700 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isSubmitting ? 'Submitting...' : 'Submit Booking'}
+                            {isSubmitting ? <Loader2 className="h-5 w-5 ml-2 animate-spin" /> : <CheckCircle className="h-5 w-5 ml-2" />}
+                        </button>
+                    </div>
                 )}
             </div>
           </form>

@@ -18,8 +18,10 @@ export interface VehicleItem {
 
 export interface PricingTier {
   service: string;
-  price: string;
+  price: string | number;
+  priceNpr?: number;
   details: string;
+  features?: string[];
 }
 
 export interface ChatMessage {

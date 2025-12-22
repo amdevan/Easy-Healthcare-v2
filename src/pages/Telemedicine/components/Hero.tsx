@@ -1,7 +1,17 @@
 import React from 'react';
 import { ArrowRight, Video, ShieldCheck, Clock } from 'lucide-react';
+import { resolveSrc } from '@/utils/url';
 
-const Hero: React.FC = () => {
+interface HeroProps {
+  title?: string;
+  subtitle?: string;
+  image?: string;
+}
+
+const Hero: React.FC<HeroProps> = ({ title, subtitle, image }) => {
+  const defaultImage = 'https://images.unsplash.com/photo-1758691461916-dc7894eb8f94?q=80&w=3432&auto=format&fit=crop&ixlib=rb-4.1.0';
+  const imgSrc = image ? resolveSrc(image) : defaultImage;
+
   return (
     <section className="relative pt-12 pb-20 lg:pt-20 lg:pb-32 overflow-hidden bg-gradient-to-br from-teal-50 via-white to-blue-50">
       <div className="container mx-auto px-4 md:px-6 relative z-10">
@@ -12,16 +22,22 @@ const Hero: React.FC = () => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
               </span>
-              Accessible Healthcare Anytime, Anywhere
+              <span>Accessible Healthcare Anytime, Anywhere</span>
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
-              Expert Care, <br />
-              <span className="text-teal-600">Just a Click Away.</span>
+              {title ? (
+                title
+              ) : (
+                <>
+                  Expert Care, <br />
+                  <span className="text-teal-600">Just a Click Away.</span>
+                </>
+              )}
             </h1>
 
             <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-              Experience the future of medicine with secure remote consultations, high-quality video calls, and instant digital prescriptions. Quality healthcare, now from the comfort of your home.
+              {subtitle || "Experience the future of medicine with secure remote consultations, high-quality video calls, and instant digital prescriptions. Quality healthcare, now from the comfort of your home."}
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
@@ -29,29 +45,29 @@ const Hero: React.FC = () => {
                 href="#cta"
                 className="w-full sm:w-auto px-8 py-4 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-700 transition-all shadow-lg hover:shadow-teal-200 flex items-center justify-center gap-2 group"
               >
-                Book an Online Consultation
+                <span>Book an Online Consultation</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
               <a
                 href="#how-it-works"
                 className="w-full sm:w-auto px-8 py-4 bg-white text-gray-700 font-semibold rounded-lg border border-gray-200 hover:border-teal-200 hover:bg-teal-50 transition-all flex items-center justify-center"
               >
-                Learn How It Works
+                <span>Learn How It Works</span>
               </a>
             </div>
 
             <div className="mt-10 flex items-center justify-center lg:justify-start gap-6 text-sm text-gray-500 font-medium">
               <div className="flex items-center gap-2">
                 <Video className="w-4 h-4 text-teal-500" />
-                HD Video Calls
+                <span>HD Video Calls</span>
               </div>
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-teal-500" />
-                Secure & Private
+                <span>Secure & Private</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-teal-500" />
-                24/7 Availability
+                <span>24/7 Availability</span>
               </div>
             </div>
           </div>
@@ -59,7 +75,7 @@ const Hero: React.FC = () => {
           <div className="lg:w-1/2 relative">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
               <img
-                src="https://images.unsplash.com/photo-1758691461916-dc7894eb8f94?q=80&w=3432&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                src={imgSrc}
                 alt="Online telemedicine consultation"
                 className="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-700"
                 referrerPolicy="no-referrer"

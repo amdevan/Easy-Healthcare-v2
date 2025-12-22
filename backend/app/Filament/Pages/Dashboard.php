@@ -12,4 +12,17 @@ class Dashboard extends BaseDashboard
             \App\Filament\Widgets\StatsOverview::class,
         ];
     }
+
+    public function getWidgets(): array
+    {
+        return [
+            \App\Filament\Widgets\AppointmentsChart::class,
+            \App\Filament\Widgets\LatestMemberships::class,
+        ];
+    }
+
+    public function getColumns(): int
+    {
+        return 2;
+    }
 }

@@ -18,14 +18,17 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-user';
-    protected static ?string $navigationLabel = 'Users';
     protected static ?string $modelLabel = 'User';
     protected static ?string $pluralModelLabel = 'Users';
+
+    protected static ?int $navigationSort = 1;
 
     public static function getNavigationGroup(): string | \UnitEnum | null
     {
         return 'Users/Roles';
     }
+
+    protected static ?string $navigationLabel = 'Users';
 
     public static function form(Schema $schema): Schema
     {
@@ -47,7 +50,8 @@ class UserResource extends Resource
                 ->nullable(),
             Forms\Components\TextInput::make('password')
                 ->password()
-                ->dehydrateStateUsing(fn ($state) => $state)
+                ->dehydrateStateUsing(fn ($state) => \Illuminate\Support\Facades\Hash::make($state))
+                ->dehydrated(fn ($state) => filled($state))
                 ->required(fn (string $operation) => $operation === 'create')
                 ->columnSpanFull()
                 ->helperText('On edit, leave blank to keep the current password.'),
@@ -63,7 +67,11 @@ class UserResource extends Resource
             Tables\Columns\TextColumn::make('role.name')->label('Role')->toggleable(isToggledHiddenByDefault: false),
             Tables\Columns\TextColumn::make('created_at')->dateTime()->toggleable(isToggledHiddenByDefault: true),
         ])->defaultSort('created_at', 'desc')
-            ->filters([])
+            ->filters([
+                Tables\Filters\SelectFilter::make('role_id')
+                    ->label('Role')
+                    ->relationship('role', 'name'),
+            ])
             ->actions([
                 EditAction::make(),
                 DeleteAction::make(),

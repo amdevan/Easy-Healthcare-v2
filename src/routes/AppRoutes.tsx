@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from '@/pages/Home/Home';
 import Contact from '@/pages/Contact/Contact';
 import FindDoctors from '@/pages/FindDoctors/FindDoctors';
+import DoctorProfile from '@/pages/FindDoctors/DoctorProfile';
 import VideoConsult from '@/pages/VideoConsult/VideoConsult';
 import Services from '@/pages/Services/Services';
 import NEMT from '@/pages/NEMT/NEMT';
@@ -27,6 +28,8 @@ import { AdminProvider } from '@/context/AdminContext';
 import ProtectedRoute from '@/routes/ProtectedRoute';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import AdminToggle from '@/components/layout/AdminToggle';
+import PopupBanner from '@/components/layout/PopupBanner';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -37,7 +40,8 @@ const AppRoutes: React.FC = () => {
           <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/find-doctors" element={<FindDoctors />} />
-          <Route path="/video-consult" element={<VideoConsult />} />
+          <Route path="/find-doctors/:slug" element={<DoctorProfile />} />
+          <Route path="/video-consult" element={<Telemedicine />} />
           <Route path="/services" element={<Services />} />
           <Route path="/primary-health" element={<PrimaryHealth />} />
           <Route path="/community-health" element={<CommunityHealth />} />
@@ -66,7 +70,9 @@ const AppRoutes: React.FC = () => {
           />
           </Routes>
           {/* Global AI Assistant */}
+          <AdminToggle />
           <AIAssistant />
+          <PopupBanner />
           <Footer />
         </AdminProvider>
       </AuthProvider>

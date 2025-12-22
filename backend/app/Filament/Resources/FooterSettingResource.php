@@ -6,6 +6,9 @@ use App\Filament\Resources\FooterSettingResource\Pages;
 use App\Models\UiSetting;
 use Filament\Forms;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Section;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -30,19 +33,88 @@ class FooterSettingResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            Forms\Components\TextInput::make('value.text')
-                ->label('Footer text')
-                ->required()
-                ->maxLength(255)
-                ->placeholder('Short tagline or company information'),
-            Forms\Components\Repeater::make('value.links')
-                ->label('Links')
-                ->schema([
-                    Forms\Components\TextInput::make('label')->required()->maxLength(100),
-                    Forms\Components\TextInput::make('href')->required()->url()->maxLength(255),
-                ])
-                ->default([])
-                ->columnSpanFull(),
+            Tabs::make('Tabs')
+                ->tabs([
+                    Tab::make('General Info')
+                        ->schema([
+                            Forms\Components\TextInput::make('value.title')
+                                ->label('Company Title')
+                                ->default('Easy Healthcare 101'),
+                            Forms\Components\Textarea::make('value.description')
+                                ->label('Description')
+                                ->rows(3),
+                            Forms\Components\TextInput::make('value.phone')
+                                ->label('Phone')
+                                ->tel(),
+                            Forms\Components\TextInput::make('value.email')
+                                ->label('Email')
+                                ->email(),
+                            Forms\Components\TextInput::make('value.address')
+                                ->label('Address'),
+                            Forms\Components\TextInput::make('value.copyright')
+                                ->label('Copyright Text')
+                                ->default('© 2024 Easy Healthcare 101. All rights reserved.'),
+                        ])->columns(2),
+                    
+                    Tab::make('Links & Columns')
+                        ->schema([
+                            Forms\Components\Repeater::make('value.columns')
+                                ->label('Footer Columns')
+                                ->schema([
+                                    Forms\Components\TextInput::make('title')
+                                        ->label('Column Title')
+                                        ->required(),
+                                    Forms\Components\Repeater::make('links')
+                                        ->schema([
+                                            Forms\Components\TextInput::make('label')->required(),
+                                            Forms\Components\TextInput::make('url')->required(),
+                                            Forms\Components\Toggle::make('new_tab')->label('New Tab'),
+                                        ])
+                                ])
+                                ->itemLabel(fn (array $state): ?string => $state['title'] ?? null)
+                                ->collapsed(),
+                        ]),
+
+                    Tab::make('Social & Apps')
+                        ->schema([
+                            Forms\Components\Repeater::make('value.social_links')
+                                ->label('Social Media Links')
+                                ->schema([
+                                    Forms\Components\Select::make('platform')
+                                        ->options([
+                                            'facebook' => 'Facebook',
+                                            'twitter' => 'Twitter',
+                                            'linkedin' => 'LinkedIn',
+                                            'instagram' => 'Instagram',
+                                            'youtube' => 'YouTube',
+                                        ])
+                                        ->required(),
+                                    Forms\Components\TextInput::make('url')
+                                        ->url()
+                                        ->required(),
+                                ])->columns(2),
+                            
+                            Section::make('App Links')
+                                ->schema([
+                                    Forms\Components\TextInput::make('value.android_app_link')
+                                        ->label('Google Play Store Link')
+                                        ->url(),
+                                    Forms\Components\TextInput::make('value.ios_app_link')
+                                        ->label('Apple App Store Link')
+                                        ->url(),
+                                ])->columns(2),
+                        ]),
+                        
+                    Tab::make('Newsletter')
+                        ->schema([
+                            Forms\Components\TextInput::make('value.newsletter_title')
+                                ->label('Title')
+                                ->default('Stay Updated'),
+                            Forms\Components\Textarea::make('value.newsletter_description')
+                                ->label('Description')
+                                ->rows(2),
+                        ]),
+                ])->columnSpanFull(),
         ]);
     }
 

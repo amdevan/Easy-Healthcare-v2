@@ -1,6 +1,6 @@
 // Admin API client: settings CRUD and media management for editable content
 
-const API_BASE = 'http://127.0.0.1:8000/api';
+const API_BASE = '/api';
 
 // Settings
 export type UiSettingValue = Record<string, any>;
@@ -54,6 +54,24 @@ export async function deleteSetting(key: string): Promise<void> {
   if (!res.ok) throw new Error(`Failed to delete setting ${key}: ${res.status}`);
 }
 
+// Simple HTML helpers for static UI blocks
+export async function getSettingHtml(key: string): Promise<string> {
+  const res = await fetch(`${API_BASE}/settings/${encodeURIComponent(key)}/html`);
+  if (!res.ok) throw new Error(`Failed to fetch setting HTML ${key}: ${res.status}`);
+  // API returns a JSON string, ensure we return a string
+  const data = await res.json();
+  return typeof data === 'string' ? data : '';
+}
+
+export async function setSettingHtml(key: string, html: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/settings/${encodeURIComponent(key)}/html`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ html }),
+  });
+  if (!res.ok) throw new Error(`Failed to set setting HTML ${key}: ${res.status}`);
+}
+
 // Media CRUD
 export interface MediaDto {
   id: number;
@@ -75,11 +93,12 @@ type Paginated<T> = {
 };
 
 export async function listMedia(params?: { active?: boolean; q?: string; page?: number }): Promise<Paginated<MediaDto>> {
-  const url = new URL(`${API_BASE}/media`);
-  if (params?.active) url.searchParams.set('active', '1');
-  if (params?.q) url.searchParams.set('q', params.q);
-  if (params?.page) url.searchParams.set('page', String(params.page));
-  const res = await fetch(url.toString());
+  const sp = new URLSearchParams();
+  if (params?.active) sp.set('active', '1');
+  if (params?.q) sp.set('q', params.q);
+  if (params?.page) sp.set('page', String(params.page));
+  const url = `${API_BASE}/media${sp.toString() ? `?${sp.toString()}` : ''}`;
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to fetch media: ${res.status}`);
   return res.json();
 }

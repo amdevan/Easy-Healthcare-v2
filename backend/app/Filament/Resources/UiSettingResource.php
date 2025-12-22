@@ -19,6 +19,12 @@ class UiSettingResource extends Resource
     protected static ?string $modelLabel = 'UI Setting';
     protected static ?string $pluralModelLabel = 'UI Setting';
     protected static ?string $navigationLabel = 'UI Setting';
+    protected static ?int $navigationSort = 1;
+
+    public static function getNavigationGroup(): string | \UnitEnum | null
+    {
+        return 'UI Setting';
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -50,5 +56,10 @@ class UiSettingResource extends Resource
             'create' => Pages\CreateUiSetting::route('/create'),
             'edit' => Pages\EditUiSetting::route('/{record}/edit'),
         ];
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
     }
 }

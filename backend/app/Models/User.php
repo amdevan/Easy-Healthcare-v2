@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
 use Filament\Models\Contracts\HasAvatar;
@@ -16,7 +17,7 @@ use App\Models\Role;
 class User extends Authenticatable implements FilamentUser, HasName, HasAvatar
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -74,5 +75,34 @@ class User extends Authenticatable implements FilamentUser, HasName, HasAvatar
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function isAdmin(): bool
+    {
+        return optional($this->role)->slug === 'admin';
+    }
+
+    public function hasRoleSlug(string $slug): bool
+    {
+        return optional($this->role)->slug === $slug;
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        $role = $this->role;
+        if (!$role || !is_array($role->permissions)) {
+            return false;
+        }
+
+        return in_array($permission, $role->permissions);
+    }
+
+    public function patient()
+    {
+        return $this->hasOne(Patient::class);
     }
 }

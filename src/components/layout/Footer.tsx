@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import Editable from '@/components/ui/Editable';
 import Button from '@/components/ui/Button';
-import { Phone, Mail, MapPin, ArrowUpRight, Globe, ShieldCheck, Star } from 'lucide-react';
+import { Phone, Mail, MapPin, ArrowUpRight, Globe, ShieldCheck, Star, Facebook, Twitter, Linkedin, Instagram, Youtube } from 'lucide-react';
+import { fetchFooterSetting, FooterSettingDto, FooterColumn } from '@/controllers/api';
 
 const FooterLinkColumn: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div>
@@ -12,22 +12,87 @@ const FooterLinkColumn: React.FC<{ title: string; children: React.ReactNode }> =
 );
 
 const Footer: React.FC = () => {
+  const [footerSetting, setFooterSetting] = useState<FooterSettingDto | null>(null);
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState<string | null>(null);
   const [lang, setLang] = useState('en');
+
   useEffect(() => {
+    let mounted = true;
+    fetchFooterSetting()
+      .then(data => {
+        if (mounted) setFooterSetting(data);
+      })
+      .catch(console.error);
+
     const saved = localStorage.getItem('siteLang');
     if (saved) setLang(saved);
+    
+    return () => { mounted = false; };
   }, []);
+
   const onSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setSubscribed('Please enter a valid email'); return; }
     setSubscribed('Subscribed successfully');
     setEmail('');
   };
+
   const onLangChange = (val: string) => {
     setLang(val);
     localStorage.setItem('siteLang', val);
+  };
+
+  const {
+      title = 'Easy Healthcare 101',
+      description = 'Your trusted partner for accessible and comprehensive healthcare solutions.',
+      phone = '+977 1-4510101',
+      email: contactEmail = 'support@easyhealthcare101.com',
+      address = 'Kathmandu Nepal',
+      copyright = `© ${new Date().getFullYear()} Easy Healthcare 101. All rights reserved.`,
+      columns = [],
+      social_links = [],
+      android_app_link,
+      ios_app_link,
+      newsletter_title = 'Stay Updated',
+      newsletter_description
+  } = footerSetting || {};
+
+  // Default columns fallback
+  const defaultColumns: FooterColumn[] = [
+    {
+      title: 'For Patients',
+      links: [
+        { label: 'Find Doctors', url: '/find-doctors' },
+        { label: 'Video Consult', url: '/telemedicine' },
+        { label: 'Lab Tests', url: '/lab-tests' },
+        { label: 'Pharmacy', url: '/pharmacy' },
+        { label: 'Primary Health', url: '/primary-health' },
+      ]
+    },
+    {
+      title: 'Company',
+      links: [
+        { label: 'About', url: '/about' },
+        { label: 'Board of Director', url: '/about/board-of-director' },
+        { label: 'Management Team', url: '/about/management-team' },
+        { label: 'Clinics & Locations', url: '/clinics-locations' },
+        { label: 'Contact', url: '/contact' },
+      ]
+    }
+  ];
+
+  const displayColumns = columns && columns.length > 0 ? columns : defaultColumns;
+
+  const getSocialIcon = (platform: string) => {
+    switch (platform.toLowerCase()) {
+      case 'facebook': return <Facebook className="w-5 h-5" />;
+      case 'twitter': return <Twitter className="w-5 h-5" />;
+      case 'linkedin': return <Linkedin className="w-5 h-5" />;
+      case 'instagram': return <Instagram className="w-5 h-5" />;
+      case 'youtube': return <Youtube className="w-5 h-5" />;
+      default: return <Globe className="w-5 h-5" />;
+    }
   };
 
   return (
@@ -36,44 +101,69 @@ const Footer: React.FC = () => {
         <div className="container mx-auto px-4 py-12">
           <div className="grid lg:grid-cols-4 gap-8 items-start">
             <div>
-              <Editable tag="h3" id="footer-title" className="text-2xl font-extrabold text-brand-gray-900">Easy Healthcare 101</Editable>
-              <Editable tag="p" id="footer-desc" className="mt-2 text-brand-gray-600">Your trusted partner for accessible and comprehensive healthcare solutions.</Editable>
-              <div className="mt-4 flex items-center gap-3 text-brand-gray-700">
-                <Phone className="w-4 h-4" />
-                <span>+977 1-4510101</span>
-              </div>
-              <div className="mt-2 flex items-center gap-3 text-brand-gray-700">
-                <Mail className="w-4 h-4" />
-                <span>support@easyhealthcare101.com</span>
-              </div>
-              <div className="mt-2 flex items-center gap-3 text-brand-gray-700">
-                <MapPin className="w-4 h-4" />
-                <span>Kathmandu Nepal</span>
-              </div>
+              <h3 className="text-2xl font-extrabold text-brand-gray-900">{title}</h3>
+              <p className="mt-2 text-brand-gray-600">{description}</p>
+              
+              {phone && (
+                <div className="mt-4 flex items-center gap-3 text-brand-gray-700">
+                  <Phone className="w-4 h-4" />
+                  <span>{phone}</span>
+                </div>
+              )}
+              {contactEmail && (
+                <div className="mt-2 flex items-center gap-3 text-brand-gray-700">
+                  <Mail className="w-4 h-4" />
+                  <span>{contactEmail}</span>
+                </div>
+              )}
+              {address && (
+                <div className="mt-2 flex items-center gap-3 text-brand-gray-700">
+                  <MapPin className="w-4 h-4" />
+                  <span>{address}</span>
+                </div>
+              )}
+              
               <div className="mt-4 flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-brand-blue" />
                 <span className="text-sm text-brand-gray-600">HIPAA-aware and privacy-focused</span>
               </div>
+
+              {social_links && social_links.length > 0 && (
+                <div className="mt-6 flex items-center gap-4">
+                  {social_links.map((link, idx) => (
+                    <a 
+                      key={idx} 
+                      href={link.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-brand-gray-600 hover:text-brand-blue transition-colors"
+                    >
+                      {getSocialIcon(link.platform)}
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
 
-            <FooterLinkColumn title="For Patients">
-              <li><Link to="/find-doctors" className="hover:text-brand-blue">Find Doctors</Link></li>
-              <li><Link to="/video-consult" className="hover:text-brand-blue">Video Consult</Link></li>
-              {/* Lab Tests link removed */}
-              <li><Link to="/pharmacy" className="hover:text-brand-blue">Pharmacy</Link></li>
-              <li><Link to="/primary-health" className="hover:text-brand-blue">Primary Health</Link></li>
-            </FooterLinkColumn>
-
-            <FooterLinkColumn title="Company">
-              <li><Link to="/about" className="hover:text-brand-blue">About</Link></li>
-              <li><Link to="/about/board-of-director" className="hover:text-brand-blue">Board of Director</Link></li>
-              <li><Link to="/about/management-team" className="hover:text-brand-blue">Management Team</Link></li>
-              <li><Link to="/clinics-locations" className="hover:text-brand-blue">Clinics & Locations</Link></li>
-              <li><Link to="/contact" className="hover:text-brand-blue">Contact</Link></li>
-            </FooterLinkColumn>
+            {displayColumns.map((col, idx) => (
+              <FooterLinkColumn key={idx} title={col.title}>
+                {col.links.map((link, lIdx) => (
+                  <li key={lIdx}>
+                    <Link 
+                      to={link.url} 
+                      target={link.new_tab ? '_blank' : undefined}
+                      className="hover:text-brand-blue"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </FooterLinkColumn>
+            ))}
 
             <div>
-              <h4 className="font-bold text-brand-gray-900 mb-4">Stay Updated</h4>
+              <h4 className="font-bold text-brand-gray-900 mb-4">{newsletter_title}</h4>
+              {newsletter_description && <p className="mb-4 text-sm text-brand-gray-600">{newsletter_description}</p>}
               <form onSubmit={onSubscribe} className="flex items-center gap-2">
                 <input
                   type="email"
@@ -88,14 +178,31 @@ const Footer: React.FC = () => {
               {subscribed && (
                 <div className="mt-2 text-sm text-brand-gray-700">{subscribed}</div>
               )}
+              
               <div className="mt-6 flex items-center gap-3">
-                <Button variant="outline" size="sm" href="#">
-                  <ArrowUpRight className="w-4 h-4 mr-2" /> App Store
-                </Button>
-                <Button variant="outline" size="sm" href="#">
-                  <ArrowUpRight className="w-4 h-4 mr-2" /> Play Store
-                </Button>
+                {ios_app_link && (
+                    <Button variant="outline" size="sm" href={ios_app_link} target="_blank">
+                      <ArrowUpRight className="w-4 h-4 mr-2" /> App Store
+                    </Button>
+                )}
+                {(!ios_app_link && !footerSetting) && (
+                    <Button variant="outline" size="sm" href="#">
+                      <ArrowUpRight className="w-4 h-4 mr-2" /> App Store
+                    </Button>
+                )}
+
+                {android_app_link && (
+                    <Button variant="outline" size="sm" href={android_app_link} target="_blank">
+                      <ArrowUpRight className="w-4 h-4 mr-2" /> Play Store
+                    </Button>
+                )}
+                {(!android_app_link && !footerSetting) && (
+                    <Button variant="outline" size="sm" href="#">
+                      <ArrowUpRight className="w-4 h-4 mr-2" /> Play Store
+                    </Button>
+                )}
               </div>
+
               <div className="mt-6 flex items-center gap-2 text-brand-gray-700">
                 <Star className="w-4 h-4 text-amber-500" />
                 <span className="text-sm">4.8/5 average user rating</span>
@@ -126,7 +233,7 @@ const Footer: React.FC = () => {
       </div>
       <div className="bg-white border-t border-gray-200">
         <div className="container mx-auto px-4 py-6 text-center md:text-left md:flex justify-between items-center text-sm text-brand-gray-700">
-          <p>&copy; {new Date().getFullYear()} Easy Healthcare 101. All rights reserved.</p>
+          <p>{copyright}</p>
           <div className="mt-2 md:mt-0 flex items-center gap-4">
             <span className="text-brand-gray-700">
               Design &amp; Develop By{' '}

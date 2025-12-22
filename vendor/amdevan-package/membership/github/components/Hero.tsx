@@ -1,7 +1,16 @@
 import React from 'react';
 import { ArrowRight, ShieldCheck, Star, Heart } from 'lucide-react';
 
-const Hero: React.FC = () => {
+interface HeroProps {
+  title?: string;
+  subtitle?: string;
+  image?: string;
+}
+
+const Hero: React.FC<HeroProps> = ({ title, subtitle, image }) => {
+  const defaultImage = "https://plus.unsplash.com/premium_photo-1664475558991-b873931dfc74?q=80&w=2672&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+  const imgSrc = image || defaultImage;
+
   return (
     <div className="relative bg-slate-50 overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
@@ -17,11 +26,15 @@ const Hero: React.FC = () => {
                 <ShieldCheck className="w-4 h-4 mr-2 text-teal-500" /> Trusted by the Nepali Diaspora
               </div>
               <h1 className="text-4xl tracking-tight font-extrabold text-slate-900 sm:text-5xl md:text-6xl leading-tight animate-fade-in-up animate-delay-100">
-                <span className="block">Care for your parents,</span>{' '}
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-500">from miles away.</span>
+                {title ? title : (
+                  <>
+                    <span className="block">Care for your parents,</span>{' '}
+                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-500">from miles away.</span>
+                  </>
+                )}
               </h1>
               <p className="mt-4 text-base text-slate-600 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0 leading-relaxed animate-fade-in-up animate-delay-200">
-                EasyCare 365 ensures your loved ones in Nepal receive medical attention, preventative care, and health coordination. Reliable, compassionate, and always there when you can't be.
+                {subtitle || "EasyCare 365 ensures your loved ones in Nepal receive medical attention, preventative care, and health coordination. Reliable, compassionate, and always there when you can't be."}
               </p>
               <div className="mt-8 sm:mt-10 sm:flex sm:justify-center lg:justify-start gap-4 animate-fade-in-up animate-delay-300">
                 <div className="rounded-full shadow-lg shadow-teal-200/50">
@@ -82,7 +95,7 @@ const Hero: React.FC = () => {
 
           <img
             className="absolute inset-0 w-full h-full object-cover lg:rounded-bl-[4rem] animate-float"
-            src="https://plus.unsplash.com/premium_photo-1664475558991-b873931dfc74?q=80&w=2672&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            src={imgSrc}
             alt="Nepali elderly couple smiling"
             referrerPolicy="no-referrer"
             onError={(e) => { e.currentTarget.src = 'https://picsum.photos/seed/membership/1600/900'; }}

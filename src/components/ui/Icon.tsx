@@ -35,7 +35,8 @@ type IconProps = {
 };
 
 const Icon: React.FC<IconProps> = ({ name, alt, className }) => {
-  const src = ICON_MAP[name] ?? ICON_MAP['hospital'];
+  const isUrl = name.startsWith('http') || name.startsWith('/') || name.startsWith('data:');
+  const src = isUrl ? name : (ICON_MAP[name] ?? ICON_MAP['hospital']);
   return (
     <img src={src} alt={alt || String(name)} className={className} />
   );

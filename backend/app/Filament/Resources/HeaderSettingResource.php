@@ -6,6 +6,7 @@ use App\Filament\Resources\HeaderSettingResource\Pages;
 use App\Models\UiSetting;
 use Filament\Forms;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -30,28 +31,144 @@ class HeaderSettingResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            Forms\Components\TextInput::make('value.logo_url')
-                ->label('Logo URL')
-                ->url()
-                ->maxLength(255)
-                ->placeholder('https://example.com/logo.png'),
-            Forms\Components\TextInput::make('value.cta.label')
-                ->label('CTA Label')
-                ->maxLength(100)
-                ->placeholder('e.g., Get Started'),
-            Forms\Components\TextInput::make('value.cta.href')
-                ->label('CTA Link')
-                ->url()
-                ->maxLength(255)
-                ->placeholder('https://example.com/signup'),
-            Forms\Components\Repeater::make('value.links')
-                ->label('Navigation links')
+            Section::make('Top Bar')
+                ->description('Manage the top information bar (Address, Phone, Login).')
                 ->schema([
-                    Forms\Components\TextInput::make('label')->required()->maxLength(100),
-                    Forms\Components\TextInput::make('href')->required()->url()->maxLength(255),
-                ])
-                ->default([])
-                ->columnSpanFull(),
+                    Forms\Components\Toggle::make('value.top_bar.enabled')
+                        ->label('Enable Top Bar')
+                        ->default(true)
+                        ->columnSpanFull(),
+                    Forms\Components\TextInput::make('value.top_bar.address')
+                        ->label('Address')
+                        ->default('Kathmandu, Nepal')
+                        ->prefixIcon('heroicon-o-map-pin'),
+                    Forms\Components\TextInput::make('value.top_bar.phone')
+                        ->label('Support Phone')
+                        ->default('+977 1-4510101')
+                        ->prefixIcon('heroicon-o-phone'),
+                    Forms\Components\TextInput::make('value.top_bar.login_label')
+                        ->label('Login Label')
+                        ->default('Patient Login'),
+                    Forms\Components\TextInput::make('value.top_bar.login_href')
+                        ->label('Login URL')
+                        ->default('/patient-login'),
+                    Forms\Components\Repeater::make('value.top_bar.action_buttons')
+                        ->label('Action Buttons')
+                        ->schema([
+                            Forms\Components\TextInput::make('label')
+                                ->label('Label')
+                                ->required(),
+                            Forms\Components\TextInput::make('href')
+                                ->label('URL')
+                                ->required(),
+                            Forms\Components\Select::make('variant')
+                                ->label('Style')
+                                ->options([
+                                    'primary' => 'Primary (Blue)',
+                                    'secondary' => 'Secondary (White/Outline)',
+                                ])
+                                ->default('primary'),
+                        ])
+                        ->columnSpanFull()
+                        ->grid(2),
+                ])->columns(2),
+
+            Section::make('Branding')
+                ->description('Manage your site logo and visual identity.')
+                ->schema([
+                    Forms\Components\FileUpload::make('value.logo_url')
+                        ->label('Logo Image')
+                        ->image()
+                        ->directory('ui-settings')
+                        ->visibility('public')
+                        ->imagePreviewHeight('100')
+                        ->columnSpanFull(),
+                    Forms\Components\TextInput::make('value.logo_height')
+                        ->label('Logo Height (px)')
+                        ->numeric()
+                        ->default(40)
+                        ->minValue(20)
+                        ->maxValue(200)
+                        ->suffix('px'),
+                    Forms\Components\TextInput::make('value.brand_name')
+                        ->label('Brand Name')
+                        ->maxLength(100)
+                        ->placeholder('Leave empty to hide')
+                        ->columnSpanFull(),
+                    Forms\Components\Toggle::make('value.show_brand_name')
+                        ->label('Show Brand Name')
+                        ->default(true)
+                        ->columnSpanFull(),
+                ])->columns(1),
+
+            Section::make('Navigation Links')
+                ->description('Manage the main menu links.')
+                ->schema([
+                    Forms\Components\Repeater::make('value.links')
+                        ->label('Menu Items')
+                        ->schema([
+                            Forms\Components\TextInput::make('label')
+                                ->label('Label')
+                                ->required()
+                                ->maxLength(100),
+                            Forms\Components\TextInput::make('href')
+                                ->label('URL')
+                                ->required()
+                                ->maxLength(255),
+                            Forms\Components\Select::make('type')
+                                ->label('Type')
+                                ->options([
+                                    'link' => 'Simple Link',
+                                    'services_dropdown' => 'Services Dropdown',
+                                    'about_dropdown' => 'About Dropdown',
+                                ])
+                                ->default('link')
+                                ->required(),
+                        ])
+                        ->default([])
+                        ->columns(2)
+                        ->columnSpanFull(),
+                ]),
+
+            Section::make('Dropdown Menus')
+                ->description('Manage the content of dropdown menus (Services, About).')
+                ->schema([
+                    Forms\Components\Repeater::make('value.services_menu')
+                        ->label('Services Menu Items')
+                        ->schema([
+                            Forms\Components\TextInput::make('label')
+                                ->label('Label')
+                                ->required()
+                                ->maxLength(100),
+                            Forms\Components\TextInput::make('href')
+                                ->label('URL')
+                                ->required()
+                                ->maxLength(255),
+                        ])
+                        ->default([])
+                        ->columns(2)
+                        ->columnSpanFull(),
+
+                    Forms\Components\Repeater::make('value.about_menu')
+                        ->label('About Menu Items')
+                        ->schema([
+                            Forms\Components\TextInput::make('label')
+                                ->label('Label')
+                                ->required()
+                                ->maxLength(100),
+                            Forms\Components\TextInput::make('href')
+                                ->label('URL')
+                                ->required()
+                                ->maxLength(255),
+                            Forms\Components\Textarea::make('desc')
+                                ->label('Description')
+                                ->rows(2)
+                                ->maxLength(255),
+                        ])
+                        ->default([])
+                        ->columns(2)
+                        ->columnSpanFull(),
+                ]),
         ]);
     }
 

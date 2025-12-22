@@ -8,6 +8,7 @@ import {
 interface PackageCardProps {
   data: HealthPackage;
   onClick: (pkg: HealthPackage) => void;
+  renderIcon?: (name: string, className?: string) => React.ReactNode;
 }
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -99,7 +100,7 @@ const themes = [
   }
 ];
 
-const PackageCard: React.FC<PackageCardProps> = ({ data, onClick }) => {
+const PackageCard: React.FC<PackageCardProps> = ({ data, onClick, renderIcon }) => {
   const themeIndex = (data.id || 0) % themes.length;
   const theme = themes[themeIndex];
 
@@ -128,7 +129,7 @@ const PackageCard: React.FC<PackageCardProps> = ({ data, onClick }) => {
           shadow-sm border border-white/50
           group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 ease-out
         `}>
-          {iconMap[data.iconName]}
+          {renderIcon ? renderIcon(data.iconName, "w-7 h-7") : iconMap[data.iconName]}
         </div>
         {data.priceEstimate && (
            <div className={`

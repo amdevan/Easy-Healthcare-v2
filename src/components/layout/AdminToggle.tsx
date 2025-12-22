@@ -4,6 +4,8 @@ import { useAdmin } from '@/context/AdminContext';
 const AdminToggle: React.FC = () => {
   const { isAdminMode, toggleAdminMode } = useAdmin();
 
+  if (!isAdminMode) return null;
+
   return (
     <button
       onClick={toggleAdminMode}

@@ -20,6 +20,12 @@ class MediaResource extends Resource
     protected static ?string $modelLabel = 'Media file';
     protected static ?string $pluralModelLabel = 'Media files';
     protected static ?string $navigationLabel = 'Media';
+    protected static ?int $navigationSort = 9;
+
+    public static function getNavigationGroup(): string | \UnitEnum | null
+    {
+        return 'UI Setting';
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -29,6 +35,9 @@ class MediaResource extends Resource
                 ->disk('public')
                 ->directory('media')
                 ->visibility('public')
+                ->image()
+                ->acceptedFileTypes(['image/*'])
+                ->maxSize(10240)
                 ->imagePreviewHeight('200')
                 ->openable()
                 ->downloadable()

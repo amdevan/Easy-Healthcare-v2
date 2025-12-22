@@ -13,6 +13,8 @@ use Database\Seeders\FaqSeeder;
 use Database\Seeders\BannerSeeder;
 use Database\Seeders\TestimonialSeeder;
 use Database\Seeders\UiSettingSeeder;
+use Database\Seeders\RoleSeeder;
+use Database\Seeders\PatientSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -34,9 +36,9 @@ class DatabaseSeeder extends Seeder
 
         // Seed doctors
         $doctors = [
-            ['name' => 'Dr. A. Sharma', 'location' => 'Bengaluru', 'experience_years' => 12, 'rating' => 4.6],
-            ['name' => 'Dr. K. Singh', 'location' => 'Delhi', 'experience_years' => 9, 'rating' => 4.4],
-            ['name' => 'Dr. R. Mehta', 'location' => 'Mumbai', 'experience_years' => 15, 'rating' => 4.8],
+            ['name' => 'Dr. A. Sharma', 'location' => 'Bengaluru', 'experience_years' => 12, 'rating' => 4.6, 'specialization' => 'Cardiology', 'nmc_no' => 'NMC-12345'],
+            ['name' => 'Dr. K. Singh', 'location' => 'Delhi', 'experience_years' => 9, 'rating' => 4.4, 'specialization' => 'Dermatology', 'nmc_no' => 'NMC-67890'],
+            ['name' => 'Dr. R. Mehta', 'location' => 'Mumbai', 'experience_years' => 15, 'rating' => 4.8, 'specialization' => 'Orthopedics', 'nmc_no' => 'NMC-24680'],
         ];
         foreach ($doctors as $d) {
             Doctor::firstOrCreate(['name' => $d['name']], $d);
@@ -95,6 +97,9 @@ class DatabaseSeeder extends Seeder
             BannerSeeder::class,
             TestimonialSeeder::class,
             UiSettingSeeder::class,
+            RoleSeeder::class,
+            PatientSeeder::class,
+            PageSeeder::class,
         ]);
     }
 }

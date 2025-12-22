@@ -1,8 +1,36 @@
 import React from 'react';
 import { CORE_COMPONENTS } from '../constants';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Stethoscope, Home, Smartphone, PhoneCall, UserCheck, Activity } from 'lucide-react';
 
-const Features: React.FC = () => {
+interface FeatureItem {
+  title: string;
+  description: string;
+  details: string[];
+  icon?: string;
+}
+
+interface FeaturesProps {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  items?: FeatureItem[];
+}
+
+const iconMap: Record<string, React.ReactNode> = {
+  'stethoscope': <Stethoscope className="w-6 h-6" />,
+  'user-check': <UserCheck className="w-6 h-6" />,
+  'home': <Home className="w-6 h-6" />,
+  'smartphone': <Smartphone className="w-6 h-6" />,
+  'phone-call': <PhoneCall className="w-6 h-6" />,
+  'default': <Activity className="w-6 h-6" />
+};
+
+const Features: React.FC<FeaturesProps> = ({ title, subtitle, description, items }) => {
+  const displayItems = items || CORE_COMPONENTS.map(c => ({
+    ...c,
+    icon: 'default' // This won't be used because we check for ReactNode in original constant
+  }));
+
   const colors = [
     { 
       bg: 'bg-teal-50', 
@@ -50,18 +78,33 @@ const Features: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in-up">
-          <h2 className="text-sm font-bold text-teal-600 tracking-widest uppercase mb-2">Comprehensive Coverage</h2>
+          <h2 className="text-sm font-bold text-teal-600 tracking-widest uppercase mb-2">{subtitle || "Comprehensive Coverage"}</h2>
           <p className="text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">
-            Everything Your Parents Need
+            {title || "Everything Your Parents Need"}
           </p>
           <p className="text-xl text-slate-500 leading-relaxed">
-            We handle the logistics, medical advocacy, and daily coordination so your parents are never alone.
+            {description || "We handle the logistics, medical advocacy, and daily coordination so your parents are never alone."}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {CORE_COMPONENTS.map((feature, index) => {
+          {displayItems.map((feature, index) => {
             const colorTheme = colors[index % colors.length];
+            // Handle icon: if it's a string (from backend props), use map. If it's a ReactNode (from constants), use it.
+            // Note: The 'items' prop expects FeatureItem where icon is string. CORE_COMPONENTS has ReactNode.
+            // We need to handle both cases if we mix them, but here displayItems comes from either props OR mapped CORE_COMPONENTS.
+            // If from props, icon is string. If from CORE_COMPONENTS, icon is ReactNode (in the original constant).
+            
+            let iconNode: React.ReactNode;
+            if (items) {
+               // Dynamic items
+               const iconName = feature.icon?.toLowerCase() || 'default';
+               iconNode = iconMap[iconName] || iconMap['default'];
+            } else {
+               // Fallback to constant
+               iconNode = CORE_COMPONENTS[index].icon;
+            }
+
             return (
               <div 
                 key={index} 
@@ -75,7 +118,7 @@ const Features: React.FC = () => {
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className={`w-16 h-16 rounded-2xl ${colorTheme.bg} ${colorTheme.text} flex items-center justify-center mb-6 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-sm`}>
-                  {React.cloneElement(feature.icon as React.ReactElement<{ className?: string }>, { className: "w-8 h-8" })}
+                  {React.isValidElement(iconNode) ? React.cloneElement(iconNode as React.ReactElement<{ className?: string }>, { className: "w-8 h-8" }) : iconNode}
                 </div>
                 
                 <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-teal-900 transition-colors">{feature.title}</h3>

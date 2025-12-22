@@ -6,7 +6,7 @@ export interface HealthPackage {
   includes: string[];
   optional?: string[];
   addOn?: string;
-  iconName: 'activity' | 'briefcase' | 'heart' | 'user' | 'clock' | 'users' | 'baby' | 'shield' | 'smile' | 'smartphone';
+  iconName: string;
   priceEstimate?: string; // Mock data for UI
 }
 

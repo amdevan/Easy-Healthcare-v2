@@ -16,6 +16,13 @@ use Filament\Actions\DeleteBulkAction;
 class LabTestResource extends Resource
 {
     protected static ?string $model = LabTest::class;
+    protected static ?string $navigationLabel = 'Lab Tests';
+    protected static ?int $navigationSort = 6;
+
+    public static function getNavigationGroup(): string | \UnitEnum | null
+    {
+        return 'Main';
+    }
 
     public static function form(Schema $schema): Schema
     {

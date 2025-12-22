@@ -11,6 +11,10 @@ export interface SliderProps {
   autoPlay?: boolean;
   intervalMs?: number;
   className?: string;
+  pauseOnHover?: boolean;
+  showCaptions?: boolean;
+  showButton?: boolean;
+  buttonText?: string;
 }
 
 const Slider: React.FC<SliderProps> = ({
@@ -18,8 +22,13 @@ const Slider: React.FC<SliderProps> = ({
   autoPlay = true,
   intervalMs = 4000,
   className = '',
+  pauseOnHover = true,
+  showCaptions = true,
+  showButton = false,
+  buttonText = 'View',
 }) => {
   const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const timerRef = useRef<number | null>(null);
 
@@ -28,13 +37,13 @@ const Slider: React.FC<SliderProps> = ({
   const goTo = (i: number) => setIndex(((i % slides.length) + slides.length) % slides.length);
 
   useEffect(() => {
-    if (!autoPlay || slides.length <= 1) return;
+    if (!autoPlay || slides.length <= 1 || paused) return;
     timerRef.current && window.clearInterval(timerRef.current);
     timerRef.current = window.setInterval(next, intervalMs);
     return () => {
       if (timerRef.current) window.clearInterval(timerRef.current);
     };
-  }, [autoPlay, intervalMs, slides.length]);
+  }, [autoPlay, intervalMs, slides.length, paused]);
 
   const onKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
     if (e.key === 'ArrowRight') next();
@@ -60,6 +69,8 @@ const Slider: React.FC<SliderProps> = ({
       onKeyDown={onKeyDown}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
+      onMouseEnter={() => pauseOnHover && setPaused(true)}
+      onMouseLeave={() => pauseOnHover && setPaused(false)}
       aria-roledescription="carousel"
       aria-label="Image slider"
     >
@@ -75,7 +86,13 @@ const Slider: React.FC<SliderProps> = ({
             src={s.src}
             alt={s.alt || ''}
             className="w-full h-full object-cover"
+            loading="lazy"
           />
+          {showCaptions && i === index && s.alt && (
+            <div className="absolute left-4 bottom-4 bg-black/50 text-white text-sm px-3 py-1 rounded-md">
+              {s.alt}
+            </div>
+          )}
         </a>
       ))}
 

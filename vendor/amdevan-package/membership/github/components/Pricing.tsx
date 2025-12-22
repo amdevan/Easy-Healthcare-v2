@@ -2,7 +2,43 @@ import React from 'react';
 import { PRICING_PLANS } from '../constants';
 import { Check, X as XIcon, Zap, Star, Shield, ArrowRight } from 'lucide-react';
 
-const Pricing: React.FC = () => {
+interface PricingFeature {
+  text: string;
+  included: boolean;
+}
+
+interface PricingPlan {
+  id: string;
+  name: string;
+  price: number;
+  period: string;
+  description: string;
+  buttonText: string;
+  highlight?: boolean;
+  features: PricingFeature[];
+}
+
+interface PricingProps {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  plans?: PricingPlan[];
+  customPackageTitle?: string;
+  customPackageDescription?: string;
+  customPackageButtonText?: string;
+}
+
+const Pricing: React.FC<PricingProps> = ({
+  title,
+  subtitle,
+  description,
+  plans,
+  customPackageTitle,
+  customPackageDescription,
+  customPackageButtonText
+}) => {
+  const displayPlans = plans || PRICING_PLANS;
+
   const getTheme = (id: string) => {
     switch (id) {
       case 'basic':
@@ -69,17 +105,17 @@ const Pricing: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-20 animate-fade-in-up">
-          <h2 className="text-teal-600 font-bold tracking-wide uppercase text-sm mb-3">Simple, Transparent Pricing</h2>
+          <h2 className="text-teal-600 font-bold tracking-wide uppercase text-sm mb-3">{subtitle || "Simple, Transparent Pricing"}</h2>
           <h1 className="text-4xl font-extrabold text-slate-900 sm:text-5xl mb-6 tracking-tight">
-            Choose the Perfect Care Plan
+            {title || "Choose the Perfect Care Plan"}
           </h1>
           <p className="text-xl text-slate-500 leading-relaxed">
-            Invest in your parents' health and your peace of mind. No hidden fees, just comprehensive care.
+            {description || "Invest in your parents' health and your peace of mind. No hidden fees, just comprehensive care."}
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 items-stretch">
-          {PRICING_PLANS.map((plan, index) => {
+          {displayPlans.map((plan, index) => {
             const theme = getTheme(plan.id);
             const isHighlighted = plan.highlight;
 
@@ -163,11 +199,11 @@ const Pricing: React.FC = () => {
               <Shield className="w-6 h-6" />
             </div>
             <div className="text-left">
-              <h3 className="font-bold text-slate-900">Need a custom family package?</h3>
-              <p className="text-slate-500 text-sm">We offer special discounts for multiple family members.</p>
+              <h3 className="font-bold text-slate-900">{customPackageTitle || "Need a custom family package?"}</h3>
+              <p className="text-slate-500 text-sm">{customPackageDescription || "We offer special discounts for multiple family members."}</p>
             </div>
             <a href="#" className="md:ml-4 px-6 py-2 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-colors">
-              Contact Support
+              {customPackageButtonText || "Contact Support"}
             </a>
           </div>
         </div>

@@ -1,7 +1,21 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ShieldCheck, Users, Briefcase, TrendingUp } from 'lucide-react';
 
+type PageValue = { title?: string; subtitle?: string };
+
 const Hero: React.FC = () => {
+  const [page, setPage] = useState<PageValue>({});
+
+  useEffect(() => {
+    const load = async () => {
+      const res = await fetch('/api/frontend');
+      const json = await res.json();
+      const p = (json.pages || []).find((x: any) => x.key === 'page.board-of-director');
+      setPage(p?.value || {});
+    };
+    load();
+  }, []);
+
   return (
     <section className="relative bg-white pt-10 pb-20 lg:pt-20 overflow-hidden">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -12,15 +26,10 @@ const Hero: React.FC = () => {
               <span>Excellence in Governance</span>
             </div>
             <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
-              Leading with <span className="text-brand-blue relative">
-                Vision & Integrity
-                <svg className="absolute w-full h-3 -bottom-1 left-0 text-brand-yellow opacity-40 -z-10" viewBox="0 0 100 10" preserveAspectRatio="none">
-                  <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="8" fill="none" />
-                </svg>
-              </span>
+              {page.title || 'Board of Director'}
             </h1>
             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              Our Board of Directors is dedicated to steering Easy Healthcare101 towards a future of accessible, high-quality care for all. We uphold the highest standards of corporate responsibility.
+              {page.subtitle || 'Leadership team' }
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
               <a href="#board-members" className="px-8 py-4 rounded-full bg-brand-blue text-white font-semibold shadow-lg shadow-blue-500/30 hover:shadow-blue-600/40 hover:-translate-y-1 transition-all text-center">

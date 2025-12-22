@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\DoctorResource\Pages;
 use App\Models\Doctor;
+use Illuminate\Support\Str;
 use Filament\Forms;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
@@ -16,6 +17,13 @@ use Filament\Actions\DeleteBulkAction;
 class DoctorResource extends Resource
 {
     protected static ?string $model = Doctor::class;
+    protected static ?string $navigationLabel = 'Doctors';
+    protected static ?int $navigationSort = 4;
+
+    public static function getNavigationGroup(): string | \UnitEnum | null
+    {
+        return 'Main';
+    }
 
 
     public static function form(Schema $schema): Schema
@@ -43,6 +51,39 @@ class DoctorResource extends Resource
                 ->maxLength(255)
                 ->placeholder('e.g., Senior Consultant')
                 ->helperText('Role or designation at the hospital.'),
+            Forms\Components\TextInput::make('specialization')
+                ->label('Specialization (text)')
+                ->maxLength(255)
+                ->placeholder('e.g., Cardiology')
+                ->helperText('Plain text specialization shown on the site.'),
+            Forms\Components\CheckboxList::make('appointment_type')
+                ->label('Appointment Types')
+                ->options([
+                    'Online' => 'Online',
+                    'In-Clinic' => 'In-Clinic',
+                    'Home Visit' => 'Home Visit',
+                ])
+                ->columns(3)
+                ->live(),
+            Forms\Components\TextInput::make('consultation_fee_clinic')
+                ->label('Consultation Fee (In-Clinic)')
+                ->numeric()
+                ->prefix('Rs.')
+                ->visible(fn ($get) => in_array('In-Clinic', $get('appointment_type') ?? [])),
+            Forms\Components\TextInput::make('consultation_fee_online')
+                ->label('Consultation Fee (Online)')
+                ->numeric()
+                ->prefix('Rs.')
+                ->visible(fn ($get) => in_array('Online', $get('appointment_type') ?? [])),
+            Forms\Components\TextInput::make('consultation_fee_home')
+                ->label('Consultation Fee (Home Visit)')
+                ->numeric()
+                ->prefix('Rs.')
+                ->visible(fn ($get) => in_array('Home Visit', $get('appointment_type') ?? [])),
+            Forms\Components\TextInput::make('nmc_no')
+                ->label('NMC No')
+                ->maxLength(255)
+                ->placeholder('e.g., NMC-12345'),
             Forms\Components\Select::make('specialties')
                 ->label('Specializations')
                 ->multiple()
@@ -52,11 +93,35 @@ class DoctorResource extends Resource
                 ->native(false)
                 ->placeholder('Select specialties')
                 ->helperText('Choose one or more from managed specialties.'),
-            Forms\Components\Textarea::make('content')
-                ->rows(6)
+            Forms\Components\RichEditor::make('content')
+                ->label('Content')
                 ->columnSpanFull()
-                ->placeholder('Short bio, expertise, and patient care philosophy.')
-                ->helperText('Keep it concise and patient-friendly.'),
+                ->default(function (?Doctor $record) {
+                    if ($record && $record->content) return $record->content;
+                    if (!$record) return null;
+                    $name = $record->name ?? 'Doctor';
+                    $spec = $record->specialization ?? null;
+                    $years = $record->experience_years ?? null;
+                    $hospitals = $record->hospitals ?? [];
+                    $hospital = is_array($hospitals) && count($hospitals) > 0 ? implode(', ', $hospitals) : ($record->hospital_name ?? null);
+                    $location = $record->location ?? null;
+                    $first = Str::of($name)->explode(' ')->first() ?? $name;
+                    $parts = [];
+                    $parts[] = sprintf(
+                        '%s is a dedicated %s%s.',
+                        $name,
+                        $spec ?: 'healthcare professional',
+                        $hospital ? " at {$hospital}" : ''
+                    );
+                    if ($years) {
+                        $parts[] = sprintf('With %d years of experience, %s provides patient-centered care.', (int) $years, $first);
+                    }
+                    if ($location) {
+                        $parts[] = sprintf('%s is currently based in %s.', $first, $location);
+                    }
+                    return '<p>' . implode(' ', $parts) . '</p>';
+                })
+                ->helperText('If left blank, it will be auto-generated from the doctor’s details.'),
             Forms\Components\Repeater::make('availability')
                 ->label('Availability (Days & Time)')
                 ->helperText('Add one or more weekly time slots.')
@@ -89,11 +154,10 @@ class DoctorResource extends Resource
                 ])
                 ->columns(3)
                 ->collapsible(),
-            Forms\Components\TextInput::make('hospital_name')
-                ->label('Hospital/Clinic name')
-                ->maxLength(255)
-                ->placeholder('e.g., City Care Hospital')
-                ->helperText('Where the doctor consults.'),
+            Forms\Components\TagsInput::make('hospitals')
+                ->label('Hospitals/Clinics')
+                ->placeholder('Add hospital...')
+                ->helperText('Type and press enter to add multiple hospitals.'),
             Forms\Components\Toggle::make('is_active')
                 ->label('Status')
                 ->default(true),
@@ -104,13 +168,17 @@ class DoctorResource extends Resource
                 ->placeholder('e.g., New York, NY'),
             Forms\Components\TextInput::make('experience_years')
                 ->numeric()
-                ->minValue(0),
+                ->default(0)
+                ->minValue(0)
+                ->dehydrateStateUsing(fn ($state) => $state ?? 0),
             Forms\Components\TextInput::make('rating')
                 ->numeric()
+                ->default(0)
                 ->minValue(0)
                 ->maxValue(5)
                 ->step('0.1')
-                ->helperText('0–5 scale. Decimals allowed.'),
+                ->helperText('0–5 scale. Decimals allowed.')
+                ->dehydrateStateUsing(fn ($state) => $state ?? 0),
         ]);
     }
 
@@ -128,7 +196,11 @@ class DoctorResource extends Resource
                 ->badge()
                 ->separator(', ')
                 ->searchable(),
-            Tables\Columns\TextColumn::make('hospital_name')->label('Hospital')->searchable(),
+            Tables\Columns\TextColumn::make('hospitals')
+                ->label('Hospitals')
+                ->badge()
+                ->separator(', ')
+                ->searchable(),
             Tables\Columns\TextColumn::make('location')->searchable(),
             Tables\Columns\TextColumn::make('experience_years')->label('Experience (yrs)'),
             Tables\Columns\TextColumn::make('rating'),

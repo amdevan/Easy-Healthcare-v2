@@ -2,7 +2,33 @@ import React from 'react';
 import { VEHICLES } from '../constants';
 import { Check } from 'lucide-react';
 
-const FleetSection: React.FC = () => {
+interface FleetVehicle {
+  id: number | string;
+  name: string;
+  description: string;
+  image: string;
+  features: string[];
+}
+
+interface FleetSectionProps {
+  label?: string;
+  title?: string;
+  description?: string;
+  vehicles?: FleetVehicle[];
+  featuresLabel?: string;
+  ctaText?: string;
+}
+
+const FleetSection: React.FC<FleetSectionProps> = ({
+  label,
+  title,
+  description,
+  vehicles,
+  featuresLabel = "Key Features",
+  ctaText = "Select this Vehicle"
+}) => {
+  const displayVehicles = vehicles || VEHICLES;
+
   return (
     <section id="fleet" className="py-24 bg-slate-50 relative overflow-hidden">
       {/* Background Decoration */}
@@ -10,17 +36,17 @@ const FleetSection: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16">
-           <span className="text-blue-600 font-bold tracking-wider uppercase text-sm bg-blue-50 px-3 py-1 rounded-full">Our Fleet</span>
+           <span className="text-blue-600 font-bold tracking-wider uppercase text-sm bg-blue-50 px-3 py-1 rounded-full">{label || "Our Fleet"}</span>
           <h2 className="mt-4 text-3xl md:text-4xl font-bold text-slate-900">
-            Safety on Wheels
+            {title || "Safety on Wheels"}
           </h2>
           <p className="mt-4 max-w-2xl text-lg text-slate-600 mx-auto">
-            Each vehicle is medically equipped, sanitized before every trip, and driven by BLS-certified professionals.
+            {description || "Each vehicle is medically equipped, sanitized before every trip, and driven by BLS-certified professionals."}
           </p>
         </div>
 
         <div className="grid gap-10 lg:grid-cols-3 lg:gap-8">
-          {VEHICLES.map((vehicle) => (
+          {displayVehicles.map((vehicle) => (
             <div key={vehicle.id} className="flex flex-col rounded-3xl overflow-hidden shadow-lg bg-white transition-transform duration-300 hover:scale-[1.02] border border-slate-100">
               <div className="relative h-56 bg-slate-200">
                 <img 
@@ -38,7 +64,7 @@ const FleetSection: React.FC = () => {
                 <p className="text-slate-600 mb-6 text-sm leading-relaxed">{vehicle.description}</p>
                 
                 <div className="flex-1">
-                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Key Features</h4>
+                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">{featuresLabel}</h4>
                     <ul className="space-y-3 mb-8">
                         {vehicle.features.map((feature, idx) => (
                         <li key={idx} className="flex items-start">
@@ -59,7 +85,7 @@ const FleetSection: React.FC = () => {
                     }}
                     className="block w-full text-center py-3 px-4 border border-teal-600 text-teal-600 font-semibold rounded-xl hover:bg-teal-600 hover:text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
                 >
-                    Select this Vehicle
+                    {ctaText}
                 </a>
               </div>
             </div>

@@ -19,6 +19,13 @@ class SpecialtyResource extends Resource
 {
     protected static ?string $model = Specialty::class;
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected static ?string $navigationLabel = 'Specialties';
+    protected static ?int $navigationSort = 10;
+
+    public static function getNavigationGroup(): string | \UnitEnum | null
+    {
+        return 'Main';
+    }
 
     public static function form(Schema $schema): Schema
     {

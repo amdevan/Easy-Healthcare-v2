@@ -12,6 +12,11 @@ use Filament\Tables\Table;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\BulkActionGroup;
+
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Section;
+use Illuminate\Support\Str;
 
 class RoleResource extends Resource
 {
@@ -25,18 +30,56 @@ class RoleResource extends Resource
         return 'Users/Roles';
     }
 
+    public static function getPermissionOptions(): array
+    {
+        $resources = [
+            'users', 'roles', 'patients', 'doctors', 'appointments',
+            'prescriptions', 'lab_appointments', 'nemt_requests',
+            'memberships', 'packages', 'media', 'pages',
+            'ui_settings', 'board_members', 'testimonials',
+            'articles', 'banners', 'specialties', 'payment_settings',
+            'system', 'inquiries'
+        ];
+        $actions = ['view', 'create', 'edit', 'delete'];
+        $options = [];
+        foreach ($resources as $resource) {
+            foreach ($actions as $action) {
+                $options["{$action}_{$resource}"] = ucfirst($action) . ' ' . ucwords(str_replace('_', ' ', $resource));
+            }
+        }
+        return $options;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
             Forms\Components\TextInput::make('name')
                 ->required()
+                ->live(onBlur: true)
+                ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state)))
                 ->maxLength(255),
             Forms\Components\TextInput::make('slug')
                 ->required()
+                ->unique(ignoreRecord: true)
+                ->disabled(fn (?Role $record) => $record?->slug === 'admin')
+                ->dehydrated()
                 ->maxLength(255),
             Forms\Components\Textarea::make('description')
                 ->rows(3)
-                ->maxLength(1000),
+                ->maxLength(1000)
+                ->columnSpanFull(),
+            Section::make('Permissions')
+                ->description('Select the permissions for this role.')
+                ->schema([
+                    Forms\Components\CheckboxList::make('permissions')
+                        ->label('')
+                        ->options(self::getPermissionOptions())
+                        ->columns(3)
+                        ->searchable()
+                        ->bulkToggleable()
+                        ->columnSpanFull(),
+                ])
+                ->collapsible(),
         ]);
     }
 
@@ -51,7 +94,8 @@ class RoleResource extends Resource
         ])->filters([])
             ->actions([
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->hidden(fn (Role $record) => $record->slug === 'admin'),
             ])
             ->bulkActions([
                 DeleteBulkAction::make(),

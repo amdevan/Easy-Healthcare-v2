@@ -1,9 +1,45 @@
 import React, { useState } from 'react';
+import { usePageContent } from '@/hooks/usePageContent';
+import { resolveSrc } from '@/utils/url';
+import { getIcon } from '@/utils/iconMapper';
 import { Pill, Stethoscope, Truck, Heart, Store, ShieldCheck } from 'lucide-react';
 
 type ViewState = 'HOME' | 'SHOP' | 'UPLOAD';
 
-const PrescriptionUpload: React.FC = () => {
+interface PrescriptionUploadProps {
+  title?: string;
+  subtitle?: string;
+  labels?: {
+    remove?: string;
+    selectFile?: string;
+    supported?: string;
+    name?: string;
+    phone?: string;
+    address?: string;
+    email?: string;
+    next?: string;
+    submit?: string;
+    uploading?: string;
+  };
+  placeholders?: {
+    name?: string;
+    phone?: string;
+    address?: string;
+    email?: string;
+  };
+  messages?: {
+    success?: string;
+    steps?: {
+      step1?: string;
+      step2?: string;
+      step3?: string;
+    };
+  };
+}
+
+const PrescriptionUpload: React.FC<PrescriptionUploadProps> = ({ 
+  title, subtitle, labels, placeholders, messages 
+}) => {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -63,9 +99,9 @@ const PrescriptionUpload: React.FC = () => {
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-md border border-slate-100 my-8">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-slate-800">Upload Prescription</h2>
+        <h2 className="text-2xl font-bold text-slate-800">{title || "Upload Prescription"}</h2>
         <p className="text-slate-500 mt-2">
-          Upload a clear photo of your doctor's prescription. Our pharmacists will verify and process your order.
+          {subtitle || "Upload a clear photo of your doctor's prescription. Our pharmacists will verify and process your order."}
         </p>
       </div>
 
@@ -89,14 +125,14 @@ const PrescriptionUpload: React.FC = () => {
                 }}
                 className="absolute top-2 right-2 bg-white/80 px-2 py-1 rounded-md text-red-600 hover:text-red-700"
               >
-                Remove
+                {labels?.remove || "Remove"}
               </button>
             </div>
           ) : (
             <>
               <label htmlFor="file-upload" className="cursor-pointer">
                 <span className="bg-blue-50 text-brand-blue font-semibold px-4 py-2 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors">
-                  Select a file
+                  {labels?.selectFile || "Select a file"}
                 </span>
                 <input
                   id="file-upload"
@@ -106,7 +142,7 @@ const PrescriptionUpload: React.FC = () => {
                   onChange={handleFileChange}
                 />
               </label>
-              <p className="mt-2 text-sm text-slate-400">Supported: JPG, PNG, PDF</p>
+              <p className="mt-2 text-sm text-slate-400">{labels?.supported || "Supported: JPG, PNG, PDF"}</p>
             </>
           )}
         </div>
@@ -115,47 +151,47 @@ const PrescriptionUpload: React.FC = () => {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700">Full Name</label>
+                <label className="block text-sm font-medium text-slate-700">{labels?.name || "Full Name"}</label>
                 <input
                   type="text"
                   value={details.name}
                   onChange={(e) => setDetails({ ...details, name: e.target.value })}
                   className={`mt-1 w-full rounded-md border ${errors.name ? 'border-red-300' : 'border-slate-300'} p-2 focus:outline-none focus:ring-2 focus:ring-brand-blue`}
-                  placeholder="Enter your name"
+                  placeholder={placeholders?.name || "Enter your name"}
                 />
                 {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700">Phone Number</label>
+                <label className="block text-sm font-medium text-slate-700">{labels?.phone || "Phone Number"}</label>
                 <input
                   type="tel"
                   value={details.phone}
                   onChange={(e) => setDetails({ ...details, phone: e.target.value })}
                   className={`mt-1 w-full rounded-md border ${errors.phone ? 'border-red-300' : 'border-slate-300'} p-2 focus:outline-none focus:ring-2 focus:ring-brand-blue`}
-                  placeholder="e.g. +9779812345678"
+                  placeholder={placeholders?.phone || "e.g. +9779812345678"}
                 />
                 {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700">Address</label>
+              <label className="block text-sm font-medium text-slate-700">{labels?.address || "Address"}</label>
               <input
                 type="text"
                 value={details.address}
                 onChange={(e) => setDetails({ ...details, address: e.target.value })}
                 className={`mt-1 w-full rounded-md border ${errors.address ? 'border-red-300' : 'border-slate-300'} p-2 focus:outline-none focus:ring-2 focus:ring-brand-blue`}
-                placeholder="Street, City, District"
+                placeholder={placeholders?.address || "Street, City, District"}
               />
               {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700">Email (optional)</label>
+              <label className="block text-sm font-medium text-slate-700">{labels?.email || "Email (optional)"}</label>
               <input
                 type="email"
                 value={details.email}
                 onChange={(e) => setDetails({ ...details, email: e.target.value })}
                 className={`mt-1 w-full rounded-md border ${errors.email ? 'border-red-300' : 'border-slate-300'} p-2 focus:outline-none focus:ring-2 focus:ring-brand-blue`}
-                placeholder="you@example.com"
+                placeholder={placeholders?.email || "you@example.com"}
               />
               {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
             </div>
@@ -164,7 +200,7 @@ const PrescriptionUpload: React.FC = () => {
 
         {uploadStatus === 'success' ? (
           <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-lg flex items-center justify-center gap-2">
-            <span>Prescription uploaded successfully! We will contact you shortly.</span>
+            <span>{messages?.success || "Prescription uploaded successfully! We will contact you shortly."}</span>
           </div>
         ) : (
           <div className="flex flex-col md:flex-row gap-3">
@@ -178,7 +214,7 @@ const PrescriptionUpload: React.FC = () => {
                     : 'bg-brand-blue text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
                 }`}
               >
-                Next
+                {labels?.next || "Next"}
               </button>
             )}
             {step === 'DETAILS' && (
@@ -191,7 +227,7 @@ const PrescriptionUpload: React.FC = () => {
                     : 'bg-brand-blue text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
                 }`}
               >
-                {isUploading ? 'Uploading...' : 'Submit Prescription'}
+                {isUploading ? (labels?.uploading || "Uploading...") : (labels?.submit || "Submit Prescription")}
               </button>
             )}
           </div>
@@ -201,15 +237,15 @@ const PrescriptionUpload: React.FC = () => {
       <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-slate-500">
         <div className="flex flex-col items-center text-center">
           <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-2 font-bold">1</div>
-          <p>Upload clear image</p>
+          <p>{messages?.steps?.step1 || "Upload clear image"}</p>
         </div>
         <div className="flex flex-col items-center text-center">
           <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-2 font-bold">2</div>
-          <p>Pharmacist verifies</p>
+          <p>{messages?.steps?.step2 || "Pharmacist verifies"}</p>
         </div>
         <div className="flex flex-col items-center text-center">
           <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-2 font-bold">3</div>
-          <p>Delivery to Doorstep</p>
+          <p>{messages?.steps?.step3 || "Delivery to Doorstep"}</p>
         </div>
       </div>
     </div>
@@ -218,6 +254,23 @@ const PrescriptionUpload: React.FC = () => {
 
 const Pharmacy: React.FC = () => {
   const [view, setView] = useState<ViewState>('HOME');
+  const { data: pageData } = usePageContent('pharmacy');
+  const heroBlock = pageData?.content?.find(b => b.type === 'hero_section');
+  const featuresBlock = pageData?.content?.find(b => b.type === 'features_list');
+  const comingSoonBlock = pageData?.content?.find(b => b.type === 'coming_soon_section');
+  const uploadBlock = pageData?.content?.find(b => b.type === 'upload_section');
+
+  const uploadProps = {
+    title: uploadBlock?.data?.title,
+    subtitle: uploadBlock?.data?.description,
+    labels: uploadBlock?.data?.labels,
+    placeholders: uploadBlock?.data?.placeholders,
+    messages: uploadBlock?.data?.messages
+  };
+  
+  const heroImg = heroBlock?.data?.image 
+    ? resolveSrc(heroBlock.data.image) 
+    : 'https://plus.unsplash.com/premium_photo-1661405904187-b701d10b6e37?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0';
 
   const scrollToUpload = () => {
     const element = document.getElementById('upload-section');
@@ -228,7 +281,21 @@ const Pharmacy: React.FC = () => {
     }
   };
 
-  const ComingSoonSection = ({ isPage = false }: { isPage?: boolean }) => (
+  const renderIcon = (iconName: string) => {
+    const Icon = getIcon(iconName);
+    return Icon ? <Icon className="h-6 w-6" /> : <Heart className="h-6 w-6" />;
+  };
+
+  const ComingSoonSection = ({ isPage = false }: { isPage?: boolean }) => {
+    const title = comingSoonBlock?.data?.title || "Online Pharmacy Store Coming Soon";
+    const description = comingSoonBlock?.data?.description || "We are building a comprehensive digital pharmacy experience. Soon you will be able to browse thousands of OTC medicines, wellness products, and medical devices directly from our app.";
+    const features = comingSoonBlock?.data?.features || [
+      { title: 'Complete Range', description: 'Access to a full inventory of prescription and OTC medications.', icon: 'pill', color: 'bg-blue-50 text-blue-600' },
+      { title: '100% Authentic', description: 'Directly sourced from authorized distributors with quality assurance.', icon: 'shield-check', color: 'bg-green-50 text-green-600' },
+      { title: 'Express Delivery', description: 'Fast doorstep delivery with real-time tracking integration.', icon: 'truck', color: 'bg-orange-50 text-orange-600' }
+    ];
+
+    return (
     <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center ${isPage ? 'py-16' : 'py-24'}`}>
       {isPage && (
         <div className="absolute top-4 left-4">
@@ -239,33 +306,25 @@ const Pharmacy: React.FC = () => {
         <Store className="w-20 h-20 text-brand-blue" />
       </div>
       <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">
-        Online Pharmacy Store <span className="text-brand-blue">Coming Soon</span>
+        {title.includes('Coming Soon') ? (
+            <>
+                {title.replace(' Coming Soon', '')} <span className="text-brand-blue">Coming Soon</span>
+            </>
+        ) : title}
       </h2>
       <p className="text-xl text-slate-500 max-w-2xl mx-auto mb-12 leading-relaxed">
-        We are building a comprehensive digital pharmacy experience. Soon you will be able to browse thousands of OTC medicines, wellness products, and medical devices directly from our app.
+        {description}
       </p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl mb-12">
-        <div className="p-8 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-4 mx-auto text-blue-600">
-            <Pill size={24} />
+        {features.map((feature: any, idx: number) => (
+          <div key={idx} className="p-8 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 mx-auto ${feature.color || 'bg-blue-50 text-blue-600'}`}>
+               {renderIcon(feature.icon)} 
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">{feature.title}</h3>
+            <p className="text-slate-500">{feature.description}</p>
           </div>
-          <h3 className="text-lg font-bold text-slate-900 mb-2">Complete Range</h3>
-          <p className="text-slate-500">Access to a full inventory of prescription and OTC medications.</p>
-        </div>
-        <div className="p-8 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mb-4 mx-auto text-green-600">
-            <ShieldCheck size={24} />
-          </div>
-          <h3 className="text-lg font-bold text-slate-900 mb-2">100% Authentic</h3>
-          <p className="text-slate-500">Directly sourced from authorized distributors with quality assurance.</p>
-        </div>
-        <div className="p-8 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mb-4 mx-auto text-orange-600">
-            <Truck size={24} />
-          </div>
-          <h3 className="text-lg font-bold text-slate-900 mb-2">Express Delivery</h3>
-          <p className="text-slate-500">Fast doorstep delivery with real-time tracking integration.</p>
-        </div>
+        ))}
       </div>
       <div className="bg-slate-900 text-white rounded-2xl p-8 max-w-3xl w-full flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
         <div className="text-left">
@@ -281,8 +340,18 @@ const Pharmacy: React.FC = () => {
       </div>
     </div>
   );
+  };
 
-  const HomeView = () => (
+  const HomeView = () => {
+    const featuresTitle = featuresBlock?.data?.title || "A better way to get your healthcare";
+    const featuresSubtitle = featuresBlock?.data?.subtitle || "Why Choose Us";
+    const featuresList = featuresBlock?.data?.features || [
+        { title: 'Pharmacist Verified', description: 'Every order is reviewed by a licensed pharmacist for safety and interactions.', icon: 'stethoscope' },
+        { title: 'Fast Delivery', description: 'Quick home delivery within Kathmandu Valley and express options for nearby districts.', icon: 'truck' },
+        { title: 'EasyCare 365', description: 'Automated refills for chronic conditions so you never run out of medicine.', icon: 'pill' }
+    ];
+
+    return (
     <div>
       <div className="relative bg-gradient-to-br from-indigo-50 via-blue-50 to-cyan-50 overflow-hidden">
         <div className="max-w-7xl mx-auto">
@@ -296,11 +365,17 @@ const Pharmacy: React.FC = () => {
                   <span className="font-bold text-2xl text-slate-800 tracking-tight">Easy<span className="text-brand-blue">Health</span></span>
                 </div>
                 <h1 className="text-4xl tracking-tight font-extrabold text-slate-900 sm:text-5xl md:text-6xl">
-                  <span className="block xl:inline">Medicines, delivered</span>{' '}
-                  <span className="block text-brand-blue xl:inline">safely to your doorstep.</span>
+                  {heroBlock?.data?.title ? (
+                    heroBlock.data.title
+                  ) : (
+                    <>
+                      <span className="block xl:inline">Medicines, delivered</span>{' '}
+                      <span className="block text-brand-blue xl:inline">safely to your doorstep.</span>
+                    </>
+                  )}
                 </h1>
                 <p className="mt-3 text-base text-slate-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                  Easy Health Care connects you to licensed pharmacies for fast, verified, and safe medicine delivery. Upload your prescription or shop OTC essentials today.
+                  {heroBlock?.data?.description || "Easy Health Care connects you to licensed pharmacies for fast, verified, and safe medicine delivery. Upload your prescription or shop OTC essentials today."}
                 </p>
                 <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                   <div className="rounded-md shadow">
@@ -321,7 +396,7 @@ const Pharmacy: React.FC = () => {
         <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
           <img
             className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full"
-            src="https://plus.unsplash.com/premium_photo-1661405904187-b701d10b6e37?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            src={heroImg}
             alt="Online pharmacy ordering on device"
             loading="eager"
             referrerPolicy="no-referrer"
@@ -333,40 +408,24 @@ const Pharmacy: React.FC = () => {
       <div className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:text-center">
-            <p className="text-base text-primary-600 font-semibold tracking-wide uppercase">Why Choose Us</p>
+            <p className="text-base text-primary-600 font-semibold tracking-wide uppercase">{featuresSubtitle}</p>
             <h3 className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-              A better way to get your healthcare
+              {featuresTitle}
             </h3>
           </div>
           <div className="mt-10">
             <dl className="space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
-              <div className="flex flex-col items-center text-center p-6 bg-slate-50 rounded-xl hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-center h-12 w-12 rounded-md bg-brand-blue text-white">
-            <Stethoscope className="h-6 w-6" />
-          </div>
-                <dt className="mt-4 text-lg leading-6 font-medium text-slate-900">Pharmacist Verified</dt>
+              {featuresList.map((feature: any, idx: number) => (
+              <div key={idx} className="flex flex-col items-center text-center p-6 bg-slate-50 rounded-xl hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-center h-12 w-12 rounded-md bg-brand-blue text-white">
+                  {renderIcon(feature.icon)}
+                </div>
+                <dt className="mt-4 text-lg leading-6 font-medium text-slate-900">{feature.title}</dt>
                 <dd className="mt-2 text-base text-slate-500">
-                  Every order is reviewed by a licensed pharmacist for safety and interactions.
+                  {feature.description}
                 </dd>
               </div>
-              <div className="flex flex-col items-center text-center p-6 bg-slate-50 rounded-xl hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-center h-12 w-12 rounded-md bg-brand-blue text-white">
-            <Truck className="h-6 w-6" />
-          </div>
-                <dt className="mt-4 text-lg leading-6 font-medium text-slate-900">Fast Delivery</dt>
-                <dd className="mt-2 text-base text-slate-500">
-                  Quick home delivery within Kathmandu Valley and express options for nearby districts.
-                </dd>
-              </div>
-              <div className="flex flex-col items-center text-center p-6 bg-slate-50 rounded-xl hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-center h-12 w-12 rounded-md bg-brand-blue text-white">
-            <Pill className="h-6 w-6" />
-          </div>
-                <dt className="mt-4 text-lg leading-6 font-medium text-slate-900">EasyCare 365</dt>
-                <dd className="mt-2 text-base text-slate-500">
-                  Automated refills for chronic conditions so you never run out of medicine.
-                </dd>
-              </div>
+              ))}
             </dl>
           </div>
         </div>
@@ -377,10 +436,11 @@ const Pharmacy: React.FC = () => {
       </div>
 
       <div id="upload-section" className="bg-slate-50 pb-24 px-4">
-        <PrescriptionUpload />
+        <PrescriptionUpload {...uploadProps} />
       </div>
     </div>
   );
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -396,7 +456,7 @@ const Pharmacy: React.FC = () => {
             <div className="absolute top-4 left-4 z-10">
               <button onClick={() => setView('HOME')} className="text-slate-500 hover:text-brand-blue font-semibold">← Back to Home</button>
             </div>
-            <PrescriptionUpload />
+            <PrescriptionUpload {...uploadProps} />
           </div>
         )}
       </div>
