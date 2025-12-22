@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Easy Healthcare 101</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Manrope', 'sans-serif'],
+            },
+            colors: {
+              'brand-blue': '#0d6efd',
+              'brand-blue-dark': '#0a58ca',
+              'brand-cyan-light': '#cff4fc',
+              'brand-gray': {
+                '100': '#f8f9fa',
+                '200': '#e9ecef',
+                '500': '#6c757d',
+                '700': '#495057',
+                '900': '#212529',
+              },
+            },
+          },
+        },
+      }
+    </script>
+    <style>
+      .editable-region {
+        transition: outline 0.2s ease-in-out, background-color 0.2s ease-in-out;
+        border-radius: 4px;
+      }
+      .editable-region:hover {
+        outline: 2px dashed #0d6efd;
+        cursor: text;
+      }
+      .editable-region:focus {
+        outline: 2px solid #0a58ca;
+        background-color: rgba(13, 110, 253, 0.05);
+      }
+    </style>
+  
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\User;
+use App\Models\Article;
+use Illuminate\Auth\Access\Response;
+
+class ArticlePolicy
+{
+    /**
+     * Determine whether the user can view any models.
+     */
+    public function viewAny(User $user): bool
+    {
+        return $user->hasPermission('view_articles');
+    }
+
+    /**
+     * Determine whether the user can view the model.
+     */
+    public function view(User $user, Article $model): bool
+    {
+        return $user->hasPermission('view_articles');
+    }
+
+    /**
+     * Determine whether the user can create models.
+     */
+    public function create(User $user): bool
+    {
+        return $user->hasPermission('create_articles');
+    }
+
+    /**
+     * Determine whether the user can update the model.
+     */
+    public function update(User $user, Article $model): bool
+    {
+        return $user->hasPermission('edit_articles');
+    }
+
+    /**
+     * Determine whether the user can delete the model.
+     */
+    public function delete(User $user, Article $model): bool
+    {
+        return $user->hasPermission('delete_articles');
+    }
+
+    /**
+     * Determine whether the user can restore the model.
+     */
+    public function restore(User $user, Article $model): bool
+    {
+        return $user->hasPermission('edit_articles');
+    }
+
+    /**
+     * Determine whether the user can permanently delete the model.
+     */
+    public function forceDelete(User $user, Article $model): bool
+    {
+        return $user->hasPermission('delete_articles');
+    }
+}
