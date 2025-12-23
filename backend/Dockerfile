@@ -1,7 +1,7 @@
 FROM composer:2 AS vendor
 WORKDIR /app
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-interaction --prefer-dist --no-progress --ignore-platform-reqs
+RUN composer install --no-dev --no-interaction --prefer-dist --no-progress --ignore-platform-reqs --no-scripts
 
 FROM php:8.2-apache
 
@@ -17,13 +17,14 @@ RUN apt-get update && apt-get install -y \
     curl \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd intl zip opcache
 
+# Set Apache document root
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+
 RUN a2enmod rewrite
 RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf && \
     printf "<Directory %s>\n\tAllowOverride All\n</Directory>\n" "$APACHE_DOCUMENT_ROOT" > /etc/apache2/conf-available/override.conf && \
     a2enconf override
 
-# Set Apache document root
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
