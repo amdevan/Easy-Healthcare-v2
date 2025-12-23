@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit on error
+set -e
+
 # Function to run a command and continue even if it fails
 run_safe() {
     "$@" || echo "Command failed: $@"
