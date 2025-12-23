@@ -26,6 +26,10 @@ php artisan event:cache
 echo "Linking storage..."
 php artisan storage:link || true
 
+# Fix permissions
+echo "Fixing permissions..."
+chown -R www-data:www-data storage bootstrap/cache
+
 # Start Apache
 echo "Starting Apache..."
 exec apache2-foreground
