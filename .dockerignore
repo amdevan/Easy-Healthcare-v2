@@ -1,6 +1,6 @@
 node_modules
 dist
 .git
-backend/storage
-backend/node_modules
-backend/vendor
+backend
+.DS_Store
+.env
