@@ -8,6 +8,10 @@ use App\Models\User;
 use App\Http\Controllers\InstallController;
 use App\Http\Middleware\CheckNotInstalled;
 
+Route::get('/health', function () {
+    return response()->json(['status' => 'ok', 'message' => 'Backend is running']);
+});
+
 Route::get('/storage/{path}', function ($path) {
     $filePath = storage_path('app/public/' . $path);
 
